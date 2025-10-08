@@ -388,9 +388,14 @@
                 if (config.success) {
                     gpConfig = config.data;
 
+                    console.log(gpConfig);
+
                     // Configure Global Payments
                     GlobalPayments.configure({
-                        publicApiKey: gpConfig.publicApiKey
+                            accessToken: gpConfig.accessToken,
+                            env: "sandbox",
+                            apiVersion: "2021-03-22",
+                            fieldValidation: { enabled: true }
                     });
 
                     // Create the card form with GP PaymentForm approach
@@ -910,7 +915,7 @@
                                 <div style="font-size: 12px; background: #ffcdd2; padding: 12px; border-radius: 4px; border-left: 4px solid #d32f2f;">
                                     <strong>🚨 This is a real error from the live payment API:</strong>
                                     <ul style="margin: 8px 0 4px 0; padding-left: 16px;">
-                                        <li>Check your API credentials (SECRET_API_KEY)</li>
+                                        <li>Check your API credentials (GP_API_APP_KEY)</li>
                                         <li>Verify the payment method is valid and active</li>
                                         <li>Ensure sufficient funds are available on the card</li>
                                         <li>Review the error code above for specific details</li>

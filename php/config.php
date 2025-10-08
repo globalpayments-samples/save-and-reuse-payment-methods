@@ -55,8 +55,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 try {
     // Configure GP API to generate access token for client-side use
     $config = new GpApiConfig();
-    $config->appId = $_ENV['APP_ID'] ?? '';
-    $config->appKey = $_ENV['APP_KEY'] ?? '';
+    $config->appId = $_ENV['GP_API_APP_ID'] ?? '';
+    $config->appKey = $_ENV['GP_API_APP_KEY'] ?? '';
     $config->environment = Environment::TEST;
     $config->channel = Channel::CardNotPresent;
     $config->country = 'US';

@@ -124,7 +124,7 @@ try {
             $multiUseTokenData = null;
             $finalToken = $paymentToken;
 
-            if (!$mockMode && !empty($_ENV['SECRET_API_KEY'])) {
+            if (!$mockMode && !empty($_ENV['GP_API_APP_KEY']) && !empty($_ENV['GP_API_APP_KEY'])) {
                 try {
                     $multiUseTokenData = PaymentUtils::createMultiUseTokenWithCustomer($paymentToken, $customerData, $cardDetails);
                     $finalToken = $multiUseTokenData['multiUseToken'];

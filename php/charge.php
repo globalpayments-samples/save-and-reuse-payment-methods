@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 try {
     $data = PaymentUtils::parseJsonInput();
-    
+
     if (empty($data['paymentMethodId'])) {
         PaymentUtils::sendErrorResponse(400, 'Payment method ID is required', 'VALIDATION_ERROR');
     }
@@ -42,11 +42,11 @@ try {
 
     $amount = 25.00;
     $currency = 'USD';
-    
+
     $transactionResult = null;
     $mockMode = MockModeConfig::isMockModeEnabled();
 
-    if (!$mockMode && !empty($_ENV['SECRET_API_KEY'])) {
+    if (!$mockMode && !empty($_ENV['GP_API_APP_KEY'])) {
         try {
             $transactionResult = PaymentUtils::processPaymentWithSDK($paymentMethod['vaultToken'], $amount, $currency);
         } catch (\Exception $e) {

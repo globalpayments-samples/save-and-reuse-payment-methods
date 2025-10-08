@@ -28,8 +28,8 @@ class PaymentUtils
         $dotenv->load();
 
         $config = new GpApiConfig();
-        $config->appId = $_ENV['APP_ID'] ?? '';
-        $config->appKey = $_ENV['APP_KEY'] ?? '';
+        $config->appId = $_ENV['GP_API_APP_ID'] ?? '';
+        $config->appKey = $_ENV['GP_API_APP_KEY'] ?? '';
         $config->environment = Environment::TEST;
         $config->channel = Channel::CardNotPresent;
         $config->country = 'US';
@@ -109,7 +109,7 @@ class PaymentUtils
                 $response->responseMessage === TransactionStatus::CAPTURED) {
 
                 $brand = self::determineCardBrandFromType($cardDetails['cardType'] ?? '');
-                $multiUseToken = $response->token ?? $paymentToken;
+                $multiUseToken = $response->token ?? $paymentToken; // check if token is sent, else log message and issue in creating token
 
                 error_log('Multi-use token created successfully: ' . substr($multiUseToken, 0, 8) . '...');
 
