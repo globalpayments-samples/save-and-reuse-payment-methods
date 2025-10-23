@@ -40,7 +40,7 @@ try {
             'payment_method_creation' => true,
             'immediate_payments' => true,
             'delayed_charges' => true,
-            'vault_tokenization' => !empty($_ENV['GP_API_APP_KEY']),
+            'stored_payment_tokenization' => !empty($_ENV['GP_API_APP_KEY']),
             'mock_fallback' => true
         ],
         'endpoints' => [

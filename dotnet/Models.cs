@@ -21,7 +21,7 @@ public class HealthData
 {
     public string Status { get; set; } = "healthy";
     public DateTime Timestamp { get; set; } = DateTime.UtcNow;
-    public string Service { get; set; } = "vault-one-click-dotnet";
+    public string Service { get; set; } = "save-reuse-payment-dotnet";
     public string Version { get; set; } = "1.0.0";
 }
 
@@ -34,7 +34,7 @@ public class PaymentMethodData
     public string ExpiryMonth { get; set; } = string.Empty;
     public string ExpiryYear { get; set; } = string.Empty;
     public string Cvv { get; set; } = string.Empty;
-    public string? VaultToken { get; set; } // Token from frontend tokenization
+    public string? StoredPaymentToken { get; set; } // Token from frontend tokenization
 
     [JsonPropertyName("payment_token")]
     public string? PaymentToken { get; set; } // Single-use payment token from GP PaymentForm
@@ -150,7 +150,7 @@ public class BillingAddress
 /// </summary>
 public class StoredPaymentMethodData
 {
-    public string VaultToken { get; set; } = string.Empty;
+    public string StoredPaymentToken { get; set; } = string.Empty;
     public string CardBrand { get; set; } = string.Empty;
     public string Last4 { get; set; } = string.Empty;
     public string ExpiryMonth { get; set; } = string.Empty;
@@ -166,7 +166,7 @@ public class StoredPaymentMethodData
 public class PaymentMethod
 {
     public string Id { get; set; } = string.Empty;
-    public string VaultToken { get; set; } = string.Empty;
+    public string StoredPaymentToken { get; set; } = string.Empty;
     public string CardBrand { get; set; } = string.Empty;
     public string Last4 { get; set; } = string.Empty;
     public string ExpiryMonth { get; set; } = string.Empty;

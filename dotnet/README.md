@@ -1,12 +1,11 @@
-# .NET Vault One-Click Payment System
+# .NET Save and Reuse Payment Methods System
 
-This example demonstrates a comprehensive vault one-click payment system using ASP.NET Core and the Global Payments SDK. It includes payment method management, secure tokenization, mock testing capabilities, and a complete web interface.
+This example demonstrates a comprehensive Save and Reuse Payment Methods System using ASP.NET Core and the Global Payments SDK. It includes payment method management, secure tokenization, mock testing capabilities, and a complete web interface.
 
 ## Features
 
 - **Payment Method Management** - Store, retrieve, and manage customer payment methods securely
-- **Vault Tokenization** - Securely tokenize and store payment methods using Global Payments vault
-- **Multi-Use Token Creation** - Convert single-use tokens to multi-use vault tokens with customer data
+- **Multi-Use Token Creation** - Convert single-use tokens to multi-use stored payment tokens with customer data
 - **One-Click Payments** - Process charges using stored multi-use payment methods
 - **Mock Mode** - Test payment flows with simulated responses without hitting live APIs
 - **Comprehensive UI** - Complete web interface with payment method management and transaction processing
@@ -73,7 +72,7 @@ System health check endpoint.
   "data": {
     "status": "healthy",
     "timestamp": "2024-09-08T14:00:00Z",
-    "service": "vault-one-click-dotnet",
+    "service": "save-reuse-payment-dotnet",
     "version": "1.0.0"
   },
   "message": "System is healthy"
@@ -169,7 +168,7 @@ Create multi-use token with customer data or edit an existing payment method.
   "success": true,
   "data": {
     "id": "pm_123456789",
-    "vaultToken": "vault_abc123def456",
+    "storedPaymentToken": "multi_use_abc123def456",
     "type": "card",
     "last4": "0016",
     "brand": "Visa",
@@ -274,10 +273,10 @@ All test cards use:
 - Channel set to CardNotPresent for online transactions
 
 ### Payment Processing
-1. **Multi-Use Tokenization**: Convert single-use tokens to multi-use vault tokens with customer data
+1. **Multi-Use Tokenization**: Convert single-use tokens to multi-use stored payment tokens with customer data
 2. **Customer Integration**: Associate customer billing information with payment methods
 3. **Storage**: Store enhanced payment method metadata with customer context in JSON format
-4. **Processing**: Use multi-use vault tokens for immediate payment charges
+4. **Processing**: Use multi-use stored payment tokens for immediate payment charges
 5. **Error Handling**: Comprehensive error handling with meaningful messages and type safety
 
 ### Data Storage
@@ -287,14 +286,14 @@ All test cards use:
 - Easy migration to database systems
 
 ### Security Features
-- Vault tokenization ensures sensitive data never touches your servers
+- Tokenization ensures sensitive data never touches your servers
 - Environment-based configuration management
 - CORS protection for API endpoints
 - Input validation and sanitization
 
 ## Multi-Use Token Implementation
 
-The .NET implementation converts single-use tokens to multi-use vault tokens using GP API's charge-based approach:
+The .NET implementation converts single-use tokens to multi-use stored payment tokens using GP API's charge-based approach:
 
 ### Key Features
 

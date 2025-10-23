@@ -48,7 +48,7 @@ try {
 
     if (!$mockMode && !empty($_ENV['GP_API_APP_KEY'])) {
         try {
-            $transactionResult = PaymentUtils::processPaymentWithSDK($paymentMethod['vaultToken'], $amount, $currency);
+            $transactionResult = PaymentUtils::processPaymentWithSDK($paymentMethod['storedPaymentToken'], $amount, $currency);
         } catch (\Exception $e) {
             error_log('Global Payments SDK payment error: ' . $e->getMessage());
             // Return actual SDK error instead of falling back to mock mode

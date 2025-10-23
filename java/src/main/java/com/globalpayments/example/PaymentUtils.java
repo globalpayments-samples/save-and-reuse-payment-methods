@@ -59,7 +59,7 @@ public class PaymentUtils {
         return sanitized.length() > 10 ? sanitized.substring(0, 10) : sanitized;
     }
     
-    public static String createVaultTokenWithSDK(Map<String, Object> data) throws Exception {
+    public static String createStoredPaymentTokenWithSDK(Map<String, Object> data) throws Exception {
         try {
             CreditCardData card = new CreditCardData();
             card.setNumber((String) data.get("cardNumber"));
@@ -92,10 +92,10 @@ public class PaymentUtils {
         }
     }
     
-    public static Map<String, String> getCardDetailsFromToken(String vaultToken) throws Exception {
+    public static Map<String, String> getCardDetailsFromToken(String storedPaymentToken) throws Exception {
         try {
             CreditCardData card = new CreditCardData();
-            card.setToken(vaultToken);
+            card.setToken(storedPaymentToken);
 
             Transaction response = card.verify()
                     .withCurrency("USD")
@@ -116,7 +116,7 @@ public class PaymentUtils {
                 cardDetails.put("last4", last4);
                 cardDetails.put("expiryMonth", expiryMonth);
                 cardDetails.put("expiryYear", expiryYear);
-                cardDetails.put("token", vaultToken);
+                cardDetails.put("token", storedPaymentToken);
                 
                 return cardDetails;
             } else {
@@ -151,10 +151,10 @@ public class PaymentUtils {
         }
     }
     
-    public static Map<String, Object> processPaymentWithSDK(String vaultToken, BigDecimal amount, String currency) throws Exception {
+    public static Map<String, Object> processPaymentWithSDK(String storedPaymentToken, BigDecimal amount, String currency) throws Exception {
         try {
             CreditCardData card = new CreditCardData();
-            card.setToken(vaultToken);
+            card.setToken(storedPaymentToken);
 
             Transaction response = card.charge(amount)
                     .withCurrency(currency)

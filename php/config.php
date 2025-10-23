@@ -11,7 +11,7 @@ declare(strict_types=1);
  * PHP version 7.4 or higher
  *
  * @category  Configuration
- * @package   GlobalPayments_VaultOneClick
+ * @package   GlobalPayments_MultiUseOneClick
  * @author    Global Payments
  * @license   MIT License
  * @link      https://github.com/globalpayments

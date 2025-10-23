@@ -131,13 +131,13 @@ class PaymentUtils
     }
 
     /**
-     * Get card details from vault token using Global Payments SDK
+     * Get card details from stored payment token using Global Payments SDK
      */
-    public static function getCardDetailsFromToken(string $vaultToken): array
+    public static function getCardDetailsFromToken(string $storedPaymentToken): array
     {
         try {
             $card = new CreditCardData();
-            $card->token = $vaultToken;
+            $card->token = $storedPaymentToken;
 
             $response = $card->verify()
                 ->withCurrency('USD')
@@ -169,11 +169,11 @@ class PaymentUtils
     /**
      * Process payment using Global Payments SDK (GP API)
      */
-    public static function processPaymentWithSDK(string $vaultToken, float $amount, string $currency): array
+    public static function processPaymentWithSDK(string $storedPaymentToken, float $amount, string $currency): array
     {
         try {
             $card = new CreditCardData();
-            $card->token = $vaultToken;
+            $card->token = $storedPaymentToken;
 
             $response = $card->charge($amount)
                 ->withCurrency($currency)
