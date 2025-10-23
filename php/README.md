@@ -1,6 +1,6 @@
-# Vault One-Click Payment System
+# Save and Reuse Payment Methods
 
-A PHP-based vault payment system that creates multi-use tokens with customer data for seamless one-click payments using the Global Payments GP API. Features secure payment method storage with integrated customer information and real-time payment processing.
+A PHP-based payment system that creates multi-use tokens with customer data for seamless one-click payments using the Global Payments GP API. Features secure payment method storage with integrated customer information and real-time payment processing.
 
 ## Requirements
 
@@ -10,12 +10,12 @@ A PHP-based vault payment system that creates multi-use tokens with customer dat
 
 ## Key Features
 
-- **Multi-Use Tokens with Customer Data**: Creates vault tokens that include customer billing information
+- **Multi-Use Tokens with Customer Data**: Creates stored payment tokens that include customer billing information
 - **Integrated Customer Management**: Associates customer details directly with payment tokens
 - **One-Click Payment Flow**: Streamlined process from card entry to payment processing
 - **Mock Mode Support**: Test functionality without live API credentials
 - **Real-Time Processing**: Immediate charges ($25)
-- **Customer Data Storage**: Associates customer billing information with vault tokens
+- **Customer Data Storage**: Associates customer billing information with stored payment tokens
 
 ## Project Structure
 
@@ -59,8 +59,8 @@ Users enter their billing information and payment details through a secure Globa
 - Payment card information (handled by Global Payments JS SDK)
 
 ### 2. Multi-Use Token Creation (GP API)
-The system creates enhanced vault tokens with integrated customer data using GP API's charge-based flow:
-- Single-use payment tokens are converted to multi-use vault tokens via a verification charge
+The system creates enhanced stored payment tokens with integrated customer data using GP API's charge-based flow:
+- Single-use payment tokens are converted to multi-use stored payment tokens via a verification charge
 - GP API requires a minimal charge ($0.01) to create multi-use tokens (PMT_xxx format)
 - Customer billing information is associated with each payment method
 - Address and contact data enables enhanced fraud protection and user experience
@@ -69,12 +69,12 @@ The system creates enhanced vault tokens with integrated customer data using GP 
 ### 3. One-Click Payments
 Saved payment methods enable seamless transactions:
 - Select from saved payment methods with customer context
-- Process immediate charges using stored vault tokens
+- Process immediate charges using stored payment tokens
 - Full payment history with customer and transaction details
 
 ### 4. Data Flow
 ```
-Frontend Form → GP API Tokenization (Single-Use) → Backend Charge ($0.01) → Multi-Use Token (PMT_xxx) + Customer Data → Vault Storage → One-Click Payments
+Frontend Form → GP API Tokenization (Single-Use) → Backend Charge ($0.01) → Multi-Use Token (PMT_xxx) + Customer Data → Secure Storage → One-Click Payments
 ```
 
 ### Key Implementation (GP API)
@@ -82,7 +82,7 @@ Frontend Form → GP API Tokenization (Single-Use) → Backend Charge ($0.01) �
 - **Backend**: Converts single-use to multi-use tokens via charge with `createMultiUseTokenWithCustomer()` method
 - **Token Format**: Multi-use tokens use PMT_xxx prefix (GP API standard)
 - **Storage**: JSON-based persistence including customer information with payment methods
-- **Processing**: Uses stored vault tokens with associated customer data for payments
+- **Processing**: Uses stored payment tokens with associated customer data for payments
 
 ## API Endpoints
 
@@ -157,7 +157,7 @@ Response:
   "success": true,
   "data": {
     "id": "pm_123",
-    "vaultToken": "multi_use_token_xyz",
+    "storedPaymentToken": "multi_use_token_xyz",
     "type": "card",
     "last4": "4242",
     "brand": "Visa",
@@ -201,7 +201,7 @@ Response:
 
 ## Multi-Use Token Implementation (GP API)
 
-This system creates multi-use tokens using GP API's charge-based approach, combining vault tokens with customer data for secure one-click payments.
+This system creates multi-use tokens using GP API's charge-based approach, combining stored payment tokens with customer data for secure one-click payments.
 
 ### Key Features
 
@@ -216,11 +216,11 @@ This system creates multi-use tokens using GP API's charge-based approach, combi
 2. **GP API Tokenization**: Card data is tokenized by GP API JS SDK (single-use token)
 3. **Backend Verification Charge**: $0.01 charge converts single-use to multi-use token
 4. **Multi-Use Token Response**: GP API returns PMT_xxx format multi-use token
-5. **Vault Storage**: Enhanced token with customer context is stored securely
+5. **Secure Storage**: Enhanced token with customer context is stored securely
 
 ### Customer Data Integration
 
-The system enhances vault tokens with comprehensive customer information using GP API:
+The system enhances stored payment tokens with comprehensive customer information using GP API:
 
 ```php
 // Example of GP API multi-use token creation with customer data
@@ -252,14 +252,14 @@ $multiUseToken = PaymentUtils::createMultiUseTokenWithCustomer(
 
 ### Token Lifecycle
 
-1. **Creation**: Single-use token + customer data → Multi-use vault token
+1. **Creation**: Single-use token + customer data → Multi-use stored payment token
 2. **Storage**: Token metadata with customer context stored locally
 3. **Usage**: Multi-use token enables repeat payments without re-entry
 4. **Management**: Update customer data or payment preferences
 
 ### Advanced Use Cases
 
-Multi-use tokens support various payment scenarios:
+Multi-use stored payment tokens support various payment scenarios:
 
 - **Subscription Billing**: Recurring charges with customer context
 - **Express Checkout**: One-click purchases with pre-filled customer data

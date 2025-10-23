@@ -76,7 +76,7 @@ public class JsonStorage {
         // Create payment method object
         Map<String, Object> paymentMethod = new HashMap<>();
         paymentMethod.put("id", id);
-        paymentMethod.put("vaultToken", data.get("vaultToken"));
+        paymentMethod.put("storedPaymentToken", data.get("storedPaymentToken"));
         paymentMethod.put("cardBrand", data.get("cardBrand"));
         paymentMethod.put("last4", data.get("last4"));
         paymentMethod.put("expiry", data.get("expiry"));

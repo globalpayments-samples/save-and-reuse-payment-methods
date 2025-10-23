@@ -38,7 +38,7 @@ public class HealthServlet extends HttpServlet {
         Map<String, Object> healthData = new HashMap<>();
         healthData.put("status", "healthy");
         healthData.put("timestamp", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
-        healthData.put("service", "vault-one-click-java");
+        healthData.put("service", "multi-use-one-click-java");
         healthData.put("version", "1.0.0");
         
         Map<String, Object> responseData = new HashMap<>();

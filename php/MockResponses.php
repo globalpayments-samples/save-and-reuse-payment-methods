@@ -8,12 +8,12 @@ declare(strict_types=1);
 class MockResponses
 {
     /**
-     * Generate mock vault token response
+     * Generate mock stored payment token response
      */
-    public static function getVaultToken(array $cardData): array
+    public static function getStoredPaymentToken(array $cardData): array
     {
         return [
-            'id' => 'vault_' . uniqid() . '_' . bin2hex(random_bytes(8)),
+            'id' => 'stored_' . uniqid() . '_' . bin2hex(random_bytes(8)),
             'brand' => $cardData['brand'],
             'last4' => $cardData['last4'],
             'exp_month' => $cardData['exp_month'],
@@ -24,9 +24,9 @@ class MockResponses
     }
 
     /**
-     * Get card details from mock vault token
+     * Get card details from mock stored payment token
      */
-    public static function getCardDetailsFromToken(string $vaultToken): array
+    public static function getCardDetailsFromToken(string $storedPaymentToken): array
     {
         // Extract mock data from token pattern or use defaults for demo
         $mockDetails = [
@@ -37,16 +37,16 @@ class MockResponses
         ];
 
         // If token contains identifiable patterns, use them
-        if (strpos($vaultToken, 'visa') !== false) {
+        if (strpos($storedPaymentToken, 'visa') !== false) {
             $mockDetails['brand'] = 'Visa';
             $mockDetails['last4'] = '0016';
-        } elseif (strpos($vaultToken, 'mastercard') !== false || strpos($vaultToken, 'mc') !== false) {
+        } elseif (strpos($storedPaymentToken, 'mastercard') !== false || strpos($storedPaymentToken, 'mc') !== false) {
             $mockDetails['brand'] = 'Mastercard';
             $mockDetails['last4'] = '5780';
-        } elseif (strpos($vaultToken, 'amex') !== false) {
+        } elseif (strpos($storedPaymentToken, 'amex') !== false) {
             $mockDetails['brand'] = 'American Express';
             $mockDetails['last4'] = '1018';
-        } elseif (strpos($vaultToken, 'discover') !== false) {
+        } elseif (strpos($storedPaymentToken, 'discover') !== false) {
             $mockDetails['brand'] = 'Discover';
             $mockDetails['last4'] = '6527';
         }

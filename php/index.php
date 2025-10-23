@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * API Router for Vault One-Click Payment System
+ * API Router for Multi-Use One-Click Payment System
  *
  * This script routes requests to individual endpoint files:
  * - /health -> health.php
@@ -13,7 +13,7 @@ declare(strict_types=1);
  * PHP version 7.4 or higher
  *
  * @category  Payment_Processing
- * @package   VaultOneClick
+ * @package   MultiUseOneClick
  * @author    Global Payments
  * @license   MIT License
  * @link      https://github.com/globalpayments

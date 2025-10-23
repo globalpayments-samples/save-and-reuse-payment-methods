@@ -61,16 +61,16 @@ public class MockResponses {
     }
     
     /**
-     * Generate mock vault token
+     * Generate mock stored payment token
      */
-    public static String generateMockVaultToken() {
+    public static String generateMockStoredPaymentToken() {
         return "token_" + UUID.randomUUID().toString().replace("-", "");
     }
     
     /**
-     * Get card details from mock vault token
+     * Get card details from mock stored payment token
      */
-    public static Map<String, String> getCardDetailsFromToken(String vaultToken) {
+    public static Map<String, String> getCardDetailsFromToken(String storedPaymentToken) {
         Map<String, String> mockDetails = new HashMap<>();
         
         // Default mock data
@@ -80,7 +80,7 @@ public class MockResponses {
         mockDetails.put("expiryYear", "28");
 
         // If token contains identifiable patterns, use them
-        String tokenLower = vaultToken.toLowerCase();
+        String tokenLower = storedPaymentToken.toLowerCase();
         if (tokenLower.contains("visa")) {
             mockDetails.put("brand", "Visa");
             mockDetails.put("last4", "0016");

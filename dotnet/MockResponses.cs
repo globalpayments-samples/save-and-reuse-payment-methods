@@ -62,9 +62,9 @@ public static class MockResponses
     }
 
     /// <summary>
-    /// Generate mock vault token
+    /// Generate mock stored payment token
     /// </summary>
-    public static string GenerateMockVaultToken()
+    public static string GenerateMockStoredPaymentToken()
     {
         return $"token_{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}_{Guid.NewGuid().ToString().Replace("-", "")[..16]}";
     }

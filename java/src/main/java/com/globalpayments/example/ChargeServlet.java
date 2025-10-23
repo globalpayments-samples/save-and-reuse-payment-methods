@@ -69,7 +69,7 @@ public class ChargeServlet extends HttpServlet {
             }
 
             System.out.println("   💳 Card: " + paymentMethod.get("cardBrand") + " ending in " + paymentMethod.get("last4"));
-            System.out.println("   🔐 Vault Token: " + ((String) paymentMethod.get("vaultToken")).substring(0, Math.min(8, ((String) paymentMethod.get("vaultToken")).length())) + "...");
+            System.out.println("   🔐 Stored Payment Token: " + ((String) paymentMethod.get("storedPaymentToken")).substring(0, Math.min(8, ((String) paymentMethod.get("storedPaymentToken")).length())) + "...");
 
             BigDecimal amount = new BigDecimal("25.00");
             String currency = "USD";
@@ -92,9 +92,9 @@ public class ChargeServlet extends HttpServlet {
                 String appKey = dotenv.get("GP_API_APP_KEY");
                 if (appKey != null && !appKey.trim().isEmpty()) {
                     try {
-                        String vaultToken = (String) paymentMethod.get("vaultToken");
+                        String storedPaymentToken = (String) paymentMethod.get("storedPaymentToken");
                         System.out.println("🟢 LIVE MODE - Processing payment via GP API...");
-                        transactionResult = PaymentUtils.processPaymentWithSDK(vaultToken, amount, currency);
+                        transactionResult = PaymentUtils.processPaymentWithSDK(storedPaymentToken, amount, currency);
                         System.out.println("✅ LIVE PAYMENT COMPLETE");
                     } catch (Exception e) {
                         System.err.println("❌ LIVE MODE - Payment processing failed:");

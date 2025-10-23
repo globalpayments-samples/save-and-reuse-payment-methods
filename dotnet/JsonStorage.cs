@@ -83,7 +83,7 @@ public static class JsonStorage
         var paymentMethod = new PaymentMethod
         {
             Id = id,
-            VaultToken = data.VaultToken,
+            StoredPaymentToken = data.StoredPaymentToken,
             CardBrand = data.CardBrand,
             Last4 = data.Last4,
             ExpiryMonth = data.ExpiryMonth,

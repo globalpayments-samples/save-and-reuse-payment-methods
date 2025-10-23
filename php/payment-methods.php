@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 /**
  * Payment Methods Endpoint
- * 
+ *
  * GET /payment-methods - Retrieve saved payment methods
- * POST /payment-methods - Create new payment method (vault token) OR edit existing payment method
- *                         - Create: Requires vaultToken (+ optional nickname, isDefault)
+ * POST /payment-methods - Create new payment method (stored payment token) OR edit existing payment method
+ *                         - Create: Requires storedPaymentToken (+ optional nickname, isDefault)
  *                         - Edit: Requires id (+ optional nickname, isDefault) - only nickname and default status can be edited
  */
 
@@ -162,7 +162,7 @@ try {
 
             $paymentMethod = [
                 'id' => $paymentMethodId,
-                'vaultToken' => $finalToken,
+                'storedPaymentToken' => $finalToken,
                 'cardBrand' => $multiUseTokenData['brand'],
                 'last4' => $multiUseTokenData['last4'],
                 'expiryMonth' => $multiUseTokenData['expiryMonth'],
@@ -178,7 +178,7 @@ try {
 
             $response = [
                 'id' => $paymentMethodId,
-                'vaultToken' => $finalToken,
+                'storedPaymentToken' => $finalToken,
                 'type' => 'card',
                 'last4' => $multiUseTokenData['last4'],
                 'brand' => $multiUseTokenData['brand'],
