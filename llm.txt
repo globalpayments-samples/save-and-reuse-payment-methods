@@ -1,0 +1,471 @@
+# Save and Reuse Payment Methods
+
+> Multi-language demonstration of payment method storage and one-click payment processing using Global Payments SDK. Shows how to convert single-use tokens to multi-use stored tokens with integrated customer data across PHP, Java, and .NET implementations.
+
+This repository provides **working reference implementations** for:
+
+- **Multi-Use Token Creation** - Critical pattern: `charge(0.01).withRequestMultiUseToken(true)` (NOT verify)
+- **Payment Method Storage** - JSON-based persistence with customer data integration  
+- **One-Click Payments** - Process charges using stored multi-use tokens
+- **Mock Mode Support** - Test without credentials using simulated API responses
+
+**⚠️ CANONICAL IMPLEMENTATIONS**: `PaymentUtils` files contain working examples that have been tested and validated. Modify with caution and test across all three languages when making changes.
+
+**Target Audience**: Developers integrating Global Payments GP API for stored payment methods
+
+**Tech Stack**: PHP 7.4+ | Java 11+ | .NET 9.0+ with Global Payments SDK (v13.1+ / v14.2.20+ / v9.0.16+)
+
+**Key Pattern to Understand**: GP API requires a **charge** (not verify) with `.withRequestMultiUseToken(true)` flag to create multi-use tokens with customer data. All three implementations demonstrate this exact pattern.
+
+## Core Documentation
+
+- [Main README](README.md): Complete project overview, features, quick start, and architecture
+- [PHP README](php/README.md): PHP-specific setup, configuration, and implementation details
+- [Java README](java/README.md): Java/Jakarta EE setup with Maven and Tomcat
+- [.NET README](dotnet/README.md): ASP.NET Core setup and configuration
+
+## Critical Code Examples
+
+- [PHP: Multi-Use Token Creation](php/PaymentUtils.php#L83-L130): **CANONICAL** - Working implementation of charge-based token creation
+- [Java: Multi-Use Token Creation](java/src/main/java/com/globalpayments/example/PaymentUtils.java#L247-L285): **CANONICAL** - Java implementation with identical pattern
+- [.NET: Multi-Use Token Creation](dotnet/PaymentUtils.cs#L48-L95): **CANONICAL** - C# async implementation
+- [PHP: SDK Configuration](php/PaymentUtils.php#L25-L38): How to configure GP API credentials
+- [Java: SDK Configuration](java/src/main/java/com/globalpayments/example/PaymentUtils.java#L32-L45): Java GpApiConfig setup
+- [.NET: SDK Configuration](dotnet/Program.cs#L30-L55): ASP.NET Core configuration with ServicesContainer
+
+## API Endpoints
+
+All three implementations expose identical REST endpoints:
+
+- [Health Check Endpoint](README.md#api-endpoints): `GET /health` - System status
+- [Config Endpoint](README.md#api-endpoints): `GET /config` - Frontend SDK configuration
+- [Payment Methods List](README.md#api-endpoints): `GET /payment-methods` - Retrieve stored methods
+- [Create Payment Method](README.md#api-endpoints): `POST /payment-methods` - Convert single-use to multi-use token
+- [Process Charge](README.md#api-endpoints): `POST /charge` - Process $25 payment with stored token
+- [Mock Mode Toggle](README.md#api-endpoints): `GET/POST /mock-mode` - Toggle simulated responses
+
+## Implementation Files
+
+### PHP Implementation (Native PHP + Composer)
+- [PaymentUtils.php](php/PaymentUtils.php): **CANONICAL** Core SDK integration and token creation
+- [payment-methods.php](php/payment-methods.php): Token creation endpoint implementation
+- [charge.php](php/charge.php): Payment processing endpoint
+- [JsonStorage.php](php/JsonStorage.php): File-based storage for payment methods
+- [MockResponses.php](php/MockResponses.php): **WORKING EXAMPLE** - Simulated API responses
+- [index.html](php/index.html): Complete frontend UI
+
+### Java Implementation (Jakarta EE + Maven)
+- [PaymentUtils.java](java/src/main/java/com/globalpayments/example/PaymentUtils.java): **CANONICAL** Core utilities
+- [PaymentMethodsServlet.java](java/src/main/java/com/globalpayments/example/PaymentMethodsServlet.java): Token creation servlet
+- [ChargeServlet.java](java/src/main/java/com/globalpayments/example/ChargeServlet.java): Payment processing servlet
+- [JsonStorage.java](java/src/main/java/com/globalpayments/example/JsonStorage.java): Storage layer
+- [MockResponses.java](java/src/main/java/com/globalpayments/example/MockResponses.java): **WORKING EXAMPLE** - Mock data
+- [index.html](java/src/main/webapp/index.html): Frontend UI
+
+### .NET Implementation (ASP.NET Core)
+- [PaymentUtils.cs](dotnet/PaymentUtils.cs): **CANONICAL** Core payment logic with async patterns
+- [Program.cs](dotnet/Program.cs): Main application with all REST endpoints
+- [Models.cs](dotnet/Models.cs): Request/response data models
+- [JsonStorage.cs](dotnet/JsonStorage.cs): Storage layer implementation
+- [MockResponses.cs](dotnet/MockResponses.cs): **WORKING EXAMPLE** - Mock responses
+- [index.html](dotnet/wwwroot/index.html): Frontend UI
+
+## Configuration Files
+
+- [PHP composer.json](php/composer.json): PHP dependencies (globalpayments/php-sdk v13.1+)
+- [Java pom.xml](java/pom.xml): Maven dependencies (globalpayments-sdk v14.2.20+)
+- [.NET dotnet.csproj](dotnet/dotnet.csproj): NuGet packages (GlobalPayments.Api v9.0.16+)
+- [Docker Compose](docker-compose.yml): Container orchestration for all three implementations
+- [PHP .env.sample](php/.env.sample): Environment variable template
+- [Java .env.sample](java/.env.sample): Java environment configuration
+- [.NET appsettings.json](dotnet/appsettings.json): .NET configuration
+
+## Code Patterns Reference
+
+Below are the complete working implementations of the critical patterns. These are extracted from the actual working code:
+
+### Multi-Use Token Creation Pattern (PHP)
+
+```php
+// From php/PaymentUtils.php lines 83-130
+public static function createMultiUseTokenWithCustomer(string $paymentToken, array $customerData, array $cardDetails): array
+{
+    // Create tokenized card from single-use token
+    $tokenizedCard = new CreditCardData();
+    $tokenizedCard->token = $paymentToken;
+    $tokenizedCard->cardHolderName = trim($customerData['first_name'] ?? '') . ' ' . trim($customerData['last_name'] ?? '');
+
+    // Create address from customer data
+    $address = new Address();
+    $address->streetAddress1 = trim($customerData['street_address'] ?? '');
+    $address->city = trim($customerData['city'] ?? '');
+    $address->province = trim($customerData['state'] ?? '');
+    $address->postalCode = self::sanitizePostalCode($customerData['billing_zip'] ?? '');
+    $address->country = trim($customerData['country'] ?? '');
+
+    // CRITICAL: Use charge (not verify) with withRequestMultiUseToken flag
+    $response = $tokenizedCard->charge(0.01)
+        ->withCurrency('USD')
+        ->withRequestMultiUseToken(true)  // This flag is REQUIRED for multi-use tokens
+        ->withAddress($address)
+        ->execute();
+
+    if ($response->responseCode === 'SUCCESS' &&
+        $response->responseMessage === TransactionStatus::CAPTURED) {
+        
+        $multiUseToken = $response->token ?? $paymentToken;
+        
+        return [
+            'multiUseToken' => $multiUseToken,
+            'brand' => self::determineCardBrandFromType($cardDetails['cardType'] ?? ''),
+            'last4' => $cardDetails['cardLast4'] ?? '',
+            'expiryMonth' => $cardDetails['expiryMonth'] ?? '',
+            'expiryYear' => $cardDetails['expiryYear'] ?? '',
+            'customerData' => $customerData
+        ];
+    }
+}
+```
+
+### SDK Configuration Pattern (PHP)
+
+```php
+// From php/PaymentUtils.php lines 25-38
+use GlobalPayments\Api\ServiceConfigs\Gateways\GpApiConfig;
+use GlobalPayments\Api\ServicesContainer;
+use GlobalPayments\Api\Entities\Enums\Environment;
+use GlobalPayments\Api\Entities\Enums\Channel;
+
+public static function configureSdk(): void
+{
+    $config = new GpApiConfig();
+    $config->appId = $_ENV['GP_API_APP_ID'] ?? '';
+    $config->appKey = $_ENV['GP_API_APP_KEY'] ?? '';
+    $config->environment = Environment::TEST;  // or Environment::PRODUCTION
+    $config->channel = Channel::CardNotPresent;
+    $config->country = 'US';
+
+    ServicesContainer::configureService($config);
+}
+```
+
+### Payment Processing Pattern (PHP)
+
+```php
+// Standard charge using stored multi-use token
+$card = new CreditCardData();
+$card->token = $storedMultiUseToken;
+
+$response = $card->charge(25.00)
+    ->withCurrency('USD')
+    ->execute();
+
+if ($response->responseCode === 'SUCCESS' && 
+    $response->responseMessage === TransactionStatus::CAPTURED) {
+    $transactionId = $response->transactionId;
+    // Payment successful
+}
+```
+
+### Multi-Use Token Creation Pattern (Java)
+
+```java
+// From java/src/main/java/com/globalpayments/example/PaymentUtils.java lines 247-285
+public static MultiUseTokenResult createMultiUseTokenWithCustomer(String paymentToken, CustomerData customerData, CardDetails cardDetails) throws Exception {
+    CreditCardData card = new CreditCardData();
+    card.setToken(paymentToken);
+    card.setCardHolderName((customerData.firstName + " " + customerData.lastName).trim());
+
+    Address address = new Address();
+    address.setStreetAddress1(customerData.streetAddress.trim());
+    address.setCity(customerData.city.trim());
+    address.setState(customerData.state.trim());
+    address.setPostalCode(sanitizePostalCode(customerData.billingZip));
+    address.setCountry(customerData.country.trim());
+
+    // CRITICAL: Use charge (not verify) with withRequestMultiUseToken flag
+    Transaction response = card.charge(new BigDecimal("0.01"))
+            .withCurrency("USD")
+            .withRequestMultiUseToken(true)  // This flag is REQUIRED for multi-use tokens
+            .withAddress(address)
+            .execute();
+
+    if ("SUCCESS".equals(response.getResponseCode()) &&
+        "CAPTURED".equals(response.getResponseMessage())) {
+        
+        String finalToken = response.getToken() != null ? response.getToken() : paymentToken;
+
+        return new MultiUseTokenResult(
+            finalToken,
+            determineCardBrandFromType(cardDetails.cardType),
+            cardDetails.cardLast4,
+            cardDetails.expiryMonth,
+            cardDetails.expiryYear,
+            customerData
+        );
+    }
+}
+```
+
+### Multi-Use Token Creation Pattern (.NET)
+
+```csharp
+// From dotnet/PaymentUtils.cs lines 48-95
+public static async Task<MultiUseTokenResult> CreateMultiUseTokenWithCustomerAsync(string paymentToken, CustomerData customerData, CardDetails cardDetails)
+{
+    return await Task.Run(() =>
+    {
+        var card = new CreditCardData
+        {
+            Token = paymentToken,
+            CardHolderName = $"{customerData.FirstName?.Trim() ?? ""} {customerData.LastName?.Trim() ?? ""}".Trim()
+        };
+
+        var address = new Address
+        {
+            StreetAddress1 = customerData.StreetAddress?.Trim() ?? "",
+            City = customerData.City?.Trim() ?? "",
+            Province = customerData.State?.Trim() ?? "",
+            PostalCode = SanitizePostalCode(customerData.BillingZip),
+            Country = customerData.Country?.Trim() ?? ""
+        };
+
+        // CRITICAL: Use charge (not verify) with WithRequestMultiUseToken flag
+        var response = card.Charge(0.01m)
+            .WithCurrency("USD")
+            .WithRequestMultiUseToken(true)  // This flag is REQUIRED for multi-use tokens
+            .WithAddress(address)
+            .Execute();
+
+        if (response.ResponseCode == "SUCCESS" &&
+            response.ResponseMessage == "CAPTURED")
+        {
+            var multiUseToken = response.Token ?? paymentToken;
+
+            return new MultiUseTokenResult
+            {
+                MultiUseToken = multiUseToken,
+                Brand = DetermineCardBrandFromType(cardDetails.CardType ?? ""),
+                Last4 = cardDetails.CardLast4 ?? "",
+                ExpiryMonth = cardDetails.ExpiryMonth ?? "",
+                ExpiryYear = cardDetails.ExpiryYear ?? "",
+                CustomerData = customerData
+            };
+        }
+    });
+}
+```
+
+## Dependencies
+
+### PHP Dependencies
+```json
+{
+    "require": {
+        "globalpayments/php-sdk": "^13.1",
+        "vlucas/phpdotenv": "^5.5"
+    }
+}
+```
+
+Required imports:
+- `GlobalPayments\Api\Entities\Address`
+- `GlobalPayments\Api\Entities\Enums\Environment`
+- `GlobalPayments\Api\Entities\Enums\Channel`
+- `GlobalPayments\Api\PaymentMethods\CreditCardData`
+- `GlobalPayments\Api\ServiceConfigs\Gateways\GpApiConfig`
+- `GlobalPayments\Api\ServicesContainer`
+
+### Java Dependencies
+```xml
+<dependency>
+    <groupId>com.heartlandpaymentsystems</groupId>
+    <artifactId>globalpayments-sdk</artifactId>
+    <version>14.2.20</version>
+</dependency>
+```
+
+Required imports:
+- `com.global.api.ServicesContainer`
+- `com.global.api.entities.Address`
+- `com.global.api.entities.Transaction`
+- `com.global.api.entities.enums.Environment`
+- `com.global.api.entities.enums.Channel`
+- `com.global.api.paymentMethods.CreditCardData`
+- `com.global.api.serviceConfigs.GpApiConfig`
+
+### .NET Dependencies
+```xml
+<PackageReference Include="GlobalPayments.Api" Version="9.0.16" />
+<PackageReference Include="DotEnv.Net" Version="3.2.1" />
+```
+
+Required usings:
+- `GlobalPayments.Api`
+- `GlobalPayments.Api.Entities`
+- `GlobalPayments.Api.Entities.Enums`
+- `GlobalPayments.Api.PaymentMethods`
+- `GlobalPayments.Api.ServiceConfigs`
+
+## Environment Configuration
+
+All implementations require these environment variables:
+
+```bash
+GP_API_APP_ID=your_app_id           # From developer.globalpay.com
+GP_API_APP_KEY=your_app_key         # Application secret key
+GP_API_ENVIRONMENT=sandbox          # sandbox or production
+```
+
+Without credentials, mock mode automatically enables for testing.
+
+## Quick Start
+
+```bash
+# Clone repository
+git clone <repository-url>
+cd save-and-reuse-payment-methods
+
+# Choose implementation
+cd [php|java|dotnet]
+
+# Copy environment template (optional)
+cp .env.sample .env
+
+# Install and run
+./run.sh
+```
+
+## API Request/Response Examples
+
+### Create Payment Method
+
+Request: `POST /payment-methods`
+```json
+{
+  "token": "PMT_single_use_token_from_frontend",
+  "cardholderName": "John Doe",
+  "address": {
+    "line1": "123 Main St",
+    "city": "New York",
+    "state": "NY",
+    "postalCode": "10001",
+    "country": "US"
+  }
+}
+```
+
+Response:
+```json
+{
+  "success": true,
+  "paymentMethod": {
+    "id": "uuid-123",
+    "multiUseToken": "PMT_multi_use_token",
+    "brand": "Visa",
+    "last4": "0016",
+    "expiryMonth": "12",
+    "expiryYear": "25"
+  }
+}
+```
+
+### Process Payment
+
+Request: `POST /charge`
+```json
+{
+  "paymentMethodId": "uuid-123"
+}
+```
+
+Response:
+```json
+{
+  "success": true,
+  "transactionId": "TXN_abc123",
+  "amount": 25.00,
+  "currency": "USD",
+  "status": "CAPTURED"
+}
+```
+
+## Test Cards
+
+Heartland certification test cards for sandbox testing:
+
+- **Visa**: 4012002000060016 (CVV: 123)
+- **Mastercard**: 5473500000000014 (CVV: 123)
+- **Discover**: 6011000990156527 (CVV: 123)
+- **Amex**: 372700699251018 (CVV: 1234)
+
+All test cards accept any future expiration date.
+
+## Critical Implementation Notes
+
+### Why Charge Instead of Verify?
+
+GP API requires a **charge transaction** (not verify) to create multi-use tokens with customer data integration. All three implementations use `charge(0.01)` with the `.withRequestMultiUseToken(true)` flag.
+
+### Expiration Date Handling
+
+All implementations handle both 2-digit and 4-digit expiration years. The SDK requires 2-digit format, so 4-digit years (e.g., "2028") are automatically converted to 2-digit (e.g., "28").
+
+### Mock Mode
+
+When no GP API credentials are provided, mock mode automatically enables. Mock responses in `MockResponses` files must match real API response structures exactly.
+
+### Security Warnings
+
+This is demonstration code with simplified storage:
+- JSON file storage is NOT production-ready
+- No encryption at rest for stored tokens
+- No authentication/authorization on endpoints
+- Single-tenant design without user isolation
+
+For production, implement proper database storage, authentication, encryption, and PCI DSS compliance.
+
+## Architecture
+
+### Frontend Flow
+1. User enters card data in Global Payments hosted fields
+2. SDK generates single-use token (client-side, PCI-compliant)
+3. Single-use token + customer data sent to backend
+4. Backend converts to multi-use token and stores
+
+### Backend Flow  
+1. Receive single-use token and customer data
+2. Create `CreditCardData` object with token
+3. Create `Address` object with customer billing info
+4. Execute charge with `.withRequestMultiUseToken(true)` flag
+5. Store returned multi-use token with customer data
+6. Return payment method ID to frontend
+
+### Payment Flow
+1. Frontend requests charge with payment method ID
+2. Backend retrieves stored multi-use token
+3. Execute charge using stored token
+4. Return transaction result
+
+## Running with Docker
+
+```bash
+# Run specific implementation
+docker-compose up php
+docker-compose up java
+docker-compose up dotnet
+
+# All implementations expose on different ports
+# PHP: http://localhost:8080
+# Java: http://localhost:8081
+# .NET: http://localhost:5000
+```
+
+## Additional Resources
+
+- [Global Payments Developer Portal](https://developer.globalpay.com/): Official API documentation
+- [Global Payments SDK GitHub](https://github.com/globalpayments): SDK source code
+- [Docker Installation](https://docs.docker.com/get-docker/): For containerized development
+- [Composer Documentation](https://getcomposer.org/doc/): PHP dependency management
+- [Maven Documentation](https://maven.apache.org/guides/): Java build tool
+- [.NET CLI Reference](https://docs.microsoft.com/en-us/dotnet/core/tools/): .NET command-line tools
