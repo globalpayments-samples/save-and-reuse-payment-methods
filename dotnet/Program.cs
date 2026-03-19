@@ -475,7 +475,8 @@ public class Program
                 ExpiryYear = multiUseTokenData.ExpiryYear,
                 Nickname = data.Nickname ?? $"{multiUseTokenData.Brand} ending in {multiUseTokenData.Last4}",
                 IsDefault = data.IsDefault,
-                CustomerData = customerData
+                CustomerData = customerData,
+                NetworkTransactionId = multiUseTokenData.NetworkTransactionId
             };
 
             var savedMethod = await JsonStorage.AddPaymentMethodAsync(storedData);
@@ -557,10 +558,19 @@ public class Program
         {
             try
             {
+                // Credentials on File: MIT/Subsequent flags required by Visa/Mastercard/Amex
+                // SchemeId links this charge back to the original cardholder-initiated Verify
+                var storedCredential = new StoredCredential
+                {
+                    Type = StoredCredentialType.Unscheduled,
+                    Initiator = StoredCredentialInitiator.Merchant,
+                    Sequence = StoredCredentialSequence.Subsequent,
+                    SchemeId = paymentMethod.NetworkTransactionId
+                };
                 var card = new CreditCardData { Token = paymentMethod.StoredPaymentToken };
                 var response = card.Charge(amount)
                     .WithCurrency("USD")
-                    .WithAllowDuplicates(true)
+                    .WithStoredCredential(storedCredential)
                     .Execute();
 
                 return new ChargeResponseData
@@ -568,7 +578,7 @@ public class Program
                     TransactionId = response.TransactionId ?? "",
                     Amount = amount,
                     Currency = "USD",
-                    Status = response.ResponseCode == "00" ? "approved" : "declined",
+                    Status = response.ResponseCode == "SUCCESS" ? "approved" : "declined",
                     ResponseCode = response.ResponseCode ?? "",
                     ResponseMessage = response.ResponseMessage ?? "",
                     Timestamp = DateTime.UtcNow,

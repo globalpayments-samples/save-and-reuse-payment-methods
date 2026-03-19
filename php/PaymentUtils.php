@@ -9,7 +9,11 @@ use GlobalPayments\Api\Entities\Address;
 use GlobalPayments\Api\Entities\Customer;
 use GlobalPayments\Api\Entities\Enums\Channel;
 use GlobalPayments\Api\Entities\Enums\Environment;
+use GlobalPayments\Api\Entities\Enums\StoredCredentialInitiator;
+use GlobalPayments\Api\Entities\Enums\StoredCredentialSequence;
+use GlobalPayments\Api\Entities\Enums\StoredCredentialType;
 use GlobalPayments\Api\Entities\Enums\TransactionStatus;
+use GlobalPayments\Api\Entities\StoredCredential;
 use GlobalPayments\Api\PaymentMethods\CreditCardData;
 use GlobalPayments\Api\ServiceConfigs\Gateways\GpApiConfig;
 use GlobalPayments\Api\ServicesContainer;
@@ -78,7 +82,7 @@ class PaymentUtils
 
     /**
      * Create multi-use token with customer data attached (GP API)
-     * Uses charge-based approach to convert single-use to multi-use token
+     * Uses Verify to convert single-use to multi-use token (card brand-approved $0 auth)
      */
     public static function createMultiUseTokenWithCustomer(string $paymentToken, array $customerData, array $cardDetails): array
     {
@@ -96,17 +100,24 @@ class PaymentUtils
             $address->postalCode = self::sanitizePostalCode($customerData['billing_zip'] ?? '');
             $address->country = trim($customerData['country'] ?? '');
 
-            // Charge to convert single-use to multi-use token
-            // GP API requires a charge (not verify) to create multi-use token
-            $response = $tokenizedCard->charge(0.01) // Minimal verification amount
+            // Credentials on File: CIT/First flags required for initial card-save Verify (Visa/MC/Amex mandate)
+            $storedCredential = new StoredCredential();
+            $storedCredential->type = StoredCredentialType::UNSCHEDULED;
+            $storedCredential->initiator = StoredCredentialInitiator::CARDHOLDER;
+            $storedCredential->sequence = StoredCredentialSequence::FIRST;
+
+            // Verify to convert single-use to multi-use token
+            // Using Verify (not a minimal charge) is the card brand-approved method for card-save flows
+            $response = $tokenizedCard->verify()
                 ->withCurrency('USD')
                 ->withRequestMultiUseToken(true)
+                ->withStoredCredential($storedCredential)
                 ->withAddress($address)
                 ->execute();
 
             // Validate GP API response
             if ($response->responseCode === 'SUCCESS' &&
-                $response->responseMessage === TransactionStatus::CAPTURED) {
+                $response->responseMessage === 'VERIFIED') {
 
                 $brand = self::determineCardBrandFromType($cardDetails['cardType'] ?? '');
                 $multiUseToken = $response->token ?? $paymentToken; // check if token is sent, else log message and issue in creating token
@@ -119,7 +130,8 @@ class PaymentUtils
                     'last4' => $cardDetails['cardLast4'] ?? '',
                     'expiryMonth' => $cardDetails['expiryMonth'] ?? '',
                     'expiryYear' => $cardDetails['expiryYear'] ?? '',
-                    'customerData' => $customerData
+                    'customerData' => $customerData,
+                    'networkTransactionId' => $response->schemeId ?? null
                 ];
             } else {
                 throw new \Exception('Multi-use token creation failed: ' . ($response->responseMessage ?? 'Unknown error'));
@@ -168,15 +180,25 @@ class PaymentUtils
 
     /**
      * Process payment using Global Payments SDK (GP API)
+     * $networkTransactionId should be the SchemeId from the original Verify (COF compliance)
      */
-    public static function processPaymentWithSDK(string $storedPaymentToken, float $amount, string $currency): array
+    public static function processPaymentWithSDK(string $storedPaymentToken, float $amount, string $currency, ?string $networkTransactionId = null): array
     {
         try {
+            // Credentials on File: MIT/Subsequent flags required by Visa/Mastercard/Amex
+            // SchemeId links this charge back to the original cardholder-initiated Verify
+            $storedCredential = new StoredCredential();
+            $storedCredential->type = StoredCredentialType::UNSCHEDULED;
+            $storedCredential->initiator = StoredCredentialInitiator::MERCHANT;
+            $storedCredential->sequence = StoredCredentialSequence::SUBSEQUENT;
+            $storedCredential->schemeId = $networkTransactionId;
+
             $card = new CreditCardData();
             $card->token = $storedPaymentToken;
 
             $response = $card->charge($amount)
                 ->withCurrency($currency)
+                ->withStoredCredential($storedCredential)
                 ->execute();
 
             // Validate GP API response

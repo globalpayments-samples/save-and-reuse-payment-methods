@@ -130,6 +130,8 @@ public class MultiUseTokenResult
     public string ExpiryMonth { get; set; } = string.Empty;
     public string ExpiryYear { get; set; } = string.Empty;
     public CustomerData? CustomerData { get; set; }
+    /// <summary>Network/scheme transaction ID from the initial Verify response. Required for Credentials on File (COF) compliance on subsequent MIT charges.</summary>
+    public string? NetworkTransactionId { get; set; }
 }
 
 /// <summary>
@@ -158,6 +160,8 @@ public class StoredPaymentMethodData
     public string? Nickname { get; set; }
     public bool IsDefault { get; set; }
     public CustomerData? CustomerData { get; set; }
+    /// <summary>Network/scheme transaction ID from the initial Verify. Store this and pass it as SchemeId on all subsequent MIT charges (COF compliance).</summary>
+    public string? NetworkTransactionId { get; set; }
 }
 
 /// <summary>
@@ -176,6 +180,8 @@ public class PaymentMethod
     public CustomerData? CustomerData { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    /// <summary>Network/scheme transaction ID from the initial Verify. Passed as SchemeId on all subsequent MIT charges (COF compliance).</summary>
+    public string? NetworkTransactionId { get; set; }
 }
 
 /// <summary>
