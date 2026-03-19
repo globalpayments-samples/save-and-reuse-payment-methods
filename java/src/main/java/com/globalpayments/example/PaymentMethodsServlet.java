@@ -161,6 +161,7 @@ public class PaymentMethodsServlet extends HttpServlet {
                             cardDetails.put("expiryMonth", multiUseResult.expiryMonth);
                             cardDetails.put("expiryYear", multiUseResult.expiryYear);
                             cardDetails.put("token", finalToken);
+                            cardDetails.put("networkTransactionId", multiUseResult.networkTransactionId);
 
                             System.out.println("✅ LIVE MODE - Multi-use token created successfully");
                             System.out.println("   💳 Card: " + cardDetails.get("brand") + " ending in " + cardDetails.get("last4"));
@@ -242,6 +243,7 @@ public class PaymentMethodsServlet extends HttpServlet {
             paymentMethodData.put("nickname", nickname != null ? nickname : cardDetails.get("brand") + " ending in " + cardDetails.get("last4"));
             paymentMethodData.put("isDefault", isDefault != null ? isDefault : false);
             paymentMethodData.put("mockMode", mockMode);
+            paymentMethodData.put("networkTransactionId", cardDetails.get("networkTransactionId"));
 
             System.out.println("💾 STORING PAYMENT METHOD:");
             System.out.println("   🔐 Final Stored Payment Token: " + finalToken.substring(0, Math.min(8, finalToken.length())) + "...");

@@ -293,13 +293,13 @@ All test cards use:
 
 ## Multi-Use Token Implementation
 
-The .NET implementation converts single-use tokens to multi-use stored payment tokens using GP API's charge-based approach:
+The .NET implementation converts single-use tokens to multi-use stored payment tokens using GP API's `Verify` approach — the card brand-approved method for card-save flows:
 
 ### Key Features
 
-- **Charge-Based Tokenization**: Uses a minimal 0.01 GBP charge to convert single-use tokens to multi-use
+- **Verify-Based Tokenization**: Uses `Verify` (a $0 auth) to convert single-use tokens to multi-use without charging the card
 - **Customer Data Integration**: Associates customer billing information with payment methods
-- **CAPTURED Validation**: Validates response with "CAPTURED" status from GP API
+- **VERIFIED Validation**: Validates response with "VERIFIED" status from GP API
 - **Type-Safe Implementation**: Uses strongly-typed C# models for all token operations
 
 ### Token Creation Process
@@ -325,16 +325,16 @@ public static async Task<MultiUseTokenResult> CreateMultiUseTokenWithCustomerAsy
         Country = customerData.Country
     };
 
-    // Charge 0.01 GBP to convert single-use to multi-use token
-    var response = card.Charge(0.01m)
-        .WithCurrency("GBP")
+    // Verify to convert single-use to multi-use token ($0 auth, card brand-approved for card-save flows)
+    var response = card.Verify()
+        .WithCurrency("USD")
         .WithRequestMultiUseToken(true)
         .WithAddress(address)
         .Execute();
 
     // Validate GP API response
     if (response.ResponseCode == "SUCCESS" &&
-        response.ResponseMessage == "CAPTURED")
+        response.ResponseMessage == "VERIFIED")
     {
         return new MultiUseTokenResult
         {
@@ -353,11 +353,11 @@ public static async Task<MultiUseTokenResult> CreateMultiUseTokenWithCustomerAsy
 
 ### Implementation Benefits
 
-- **GP API Native**: Uses GP API's recommended charge-based approach
+- **Card Brand Compliant**: Uses `Verify` (not a minimal charge) to avoid interchange penalties for misuse of authorizations
 - **Type Safety**: Strongly-typed models prevent runtime errors
 - **Customer Context**: Enhanced user experience with stored customer data
 - **PCI Compliance**: Card data never touches your servers
-- **Validation**: Explicit CAPTURED status check ensures successful tokenization
+- **Validation**: Explicit VERIFIED status check ensures successful tokenization
 
 ## Production Considerations
 

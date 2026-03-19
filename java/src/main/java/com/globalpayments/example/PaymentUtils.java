@@ -2,9 +2,13 @@ package com.globalpayments.example;
 
 import com.global.api.ServicesContainer;
 import com.global.api.entities.Address;
+import com.global.api.entities.StoredCredential;
 import com.global.api.entities.Transaction;
 import com.global.api.entities.enums.Channel;
 import com.global.api.entities.enums.Environment;
+import com.global.api.entities.enums.StoredCredentialInitiator;
+import com.global.api.entities.enums.StoredCredentialSequence;
+import com.global.api.entities.enums.StoredCredentialType;
 import com.global.api.entities.exceptions.ApiException;
 import com.global.api.entities.exceptions.ConfigurationException;
 import com.global.api.paymentMethods.CreditCardData;
@@ -151,13 +155,22 @@ public class PaymentUtils {
         }
     }
     
-    public static Map<String, Object> processPaymentWithSDK(String storedPaymentToken, BigDecimal amount, String currency) throws Exception {
+    public static Map<String, Object> processPaymentWithSDK(String storedPaymentToken, BigDecimal amount, String currency, String networkTransactionId) throws Exception {
         try {
+            // Credentials on File: MIT/Subsequent flags required by Visa/Mastercard/Amex
+            // SchemeId links this charge back to the original cardholder-initiated Verify
+            StoredCredential storedCredential = new StoredCredential()
+                    .setType(StoredCredentialType.Unscheduled)
+                    .setInitiator(StoredCredentialInitiator.Merchant)
+                    .setSequence(StoredCredentialSequence.Subsequent)
+                    .setSchemeId(networkTransactionId);
+
             CreditCardData card = new CreditCardData();
             card.setToken(storedPaymentToken);
 
             Transaction response = card.charge(amount)
                     .withCurrency(currency)
+                    .withStoredCredential(storedCredential)
                     .execute();
 
             if ("SUCCESS".equals(response.getResponseCode()) &&
@@ -233,14 +246,16 @@ public class PaymentUtils {
         public String expiryMonth;
         public String expiryYear;
         public CustomerData customerData;
+        public String networkTransactionId;
 
-        public MultiUseTokenResult(String token, String brand, String last4, String expiryMonth, String expiryYear, CustomerData customerData) {
+        public MultiUseTokenResult(String token, String brand, String last4, String expiryMonth, String expiryYear, CustomerData customerData, String networkTransactionId) {
             this.multiUseToken = token;
             this.brand = brand;
             this.last4 = last4;
             this.expiryMonth = expiryMonth;
             this.expiryYear = expiryYear;
             this.customerData = customerData;
+            this.networkTransactionId = networkTransactionId;
         }
     }
 
@@ -257,14 +272,21 @@ public class PaymentUtils {
             address.setPostalCode(sanitizePostalCode(customerData.billingZip));
             address.setCountry(customerData.country.trim());
 
-            Transaction response = card.charge(new BigDecimal("0.01"))
+            Transaction response = card.verify()
                     .withCurrency("USD")
                     .withRequestMultiUseToken(true)
+                    .withStoredCredential(
+                        // Credentials on File: CIT/First flags required for initial card-save Verify (Visa/MC/Amex mandate)
+                        new StoredCredential()
+                            .setType(StoredCredentialType.Unscheduled)
+                            .setInitiator(StoredCredentialInitiator.CardHolder)
+                            .setSequence(StoredCredentialSequence.First)
+                    )
                     .withAddress(address)
                     .execute();
 
             if ("SUCCESS".equals(response.getResponseCode()) &&
-                "CAPTURED".equals(response.getResponseMessage())) {
+                "VERIFIED".equals(response.getResponseMessage())) {
                 String brand = determineCardBrandFromType(cardDetails.cardType);
                 String finalToken = response.getToken() != null ? response.getToken() : paymentToken;
 
@@ -284,7 +306,8 @@ public class PaymentUtils {
                     cardDetails.cardLast4,
                     cardDetails.expiryMonth,
                     cardDetails.expiryYear,
-                    customerData
+                    customerData,
+                    response.getSchemeId()
                 );
             } else {
                 throw new Exception("Multi-use token creation failed: " + (response.getResponseMessage() != null ? response.getResponseMessage() : "Unknown error"));

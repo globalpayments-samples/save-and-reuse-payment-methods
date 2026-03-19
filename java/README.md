@@ -301,13 +301,13 @@ All test cards use:
 
 ## Multi-Use Token Implementation
 
-The Java implementation converts single-use tokens to multi-use stored payment tokens using GP API's charge-based approach:
+The Java implementation converts single-use tokens to multi-use stored payment tokens using GP API's `Verify` approach — the card brand-approved method for card-save flows:
 
 ### Key Features
 
-- **Charge-Based Tokenization**: Uses a minimal $0.01 USD charge to convert single-use tokens to multi-use
+- **Verify-Based Tokenization**: Uses `Verify` (a $0 auth) to convert single-use tokens to multi-use without charging the card
 - **Customer Data Integration**: Associates customer billing information with payment methods
-- **CAPTURED Validation**: Validates response with "CAPTURED" status from GP API
+- **VERIFIED Validation**: Validates response with "VERIFIED" status from GP API
 - **Thread-Safe Processing**: Concurrent servlet handling for multi-use token creation
 - **Type-Safe Implementation**: Uses strongly-typed Java classes for all token operations
 
@@ -328,8 +328,8 @@ public static MultiUseTokenResult createMultiUseTokenWithCustomer(
     address.setPostalCode(sanitizePostalCode(customerData.billingZip));
     address.setCountry(customerData.country.trim());
 
-    // Charge $0.01 USD to convert single-use to multi-use token
-    Transaction response = card.charge(new BigDecimal("0.01"))
+    // Verify to convert single-use to multi-use token ($0 auth, card brand-approved for card-save flows)
+    Transaction response = card.verify()
             .withCurrency("USD")
             .withRequestMultiUseToken(true)
             .withAddress(address)
@@ -337,7 +337,7 @@ public static MultiUseTokenResult createMultiUseTokenWithCustomer(
 
     // Validate GP API response
     if ("SUCCESS".equals(response.getResponseCode()) &&
-        "CAPTURED".equals(response.getResponseMessage())) {
+        "VERIFIED".equals(response.getResponseMessage())) {
 
         return new MultiUseTokenResult(
             response.getToken() != null ? response.getToken() : paymentToken,
@@ -355,12 +355,12 @@ public static MultiUseTokenResult createMultiUseTokenWithCustomer(
 
 ### Implementation Benefits
 
-- **GP API Native**: Uses GP API's recommended charge-based approach
+- **Card Brand Compliant**: Uses `Verify` (not a minimal charge) to avoid interchange penalties for misuse of authorizations
 - **Thread Safety**: Servlet-based architecture with concurrent request handling
 - **Type Safety**: Compile-time validation with Java's type system
 - **Enterprise Ready**: Built on Jakarta EE standards for scalability
 - **Memory Management**: Efficient JVM memory management for customer data
-- **Validation**: Explicit CAPTURED status check ensures successful tokenization
+- **Validation**: Explicit VERIFIED status check ensures successful tokenization
 
 ## Production Considerations
 

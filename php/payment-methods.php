@@ -169,7 +169,8 @@ try {
                 'expiryYear' => $multiUseTokenData['expiryYear'],
                 'nickname' => $data['nickname'] ?? ($multiUseTokenData['brand'] . ' ending in ' . $multiUseTokenData['last4']),
                 'isDefault' => $data['isDefault'] ?? false,
-                'customerData' => $customerData
+                'customerData' => $customerData,
+                'networkTransactionId' => $multiUseTokenData['networkTransactionId'] ?? null
             ];
 
             if (!JsonStorage::addPaymentMethod($paymentMethod)) {

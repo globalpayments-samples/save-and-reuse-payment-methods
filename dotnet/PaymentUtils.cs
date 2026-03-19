@@ -43,7 +43,7 @@ public static class PaymentUtils
 
     /// <summary>
     /// Create multi-use token with customer data attached (GP API)
-    /// Uses charge-based approach to convert single-use to multi-use token
+    /// Uses Verify to convert single-use to multi-use token (card brand-approved $0 auth)
     /// </summary>
     public static async Task<MultiUseTokenResult> CreateMultiUseTokenWithCustomerAsync(string paymentToken, CustomerData customerData, CardDetails cardDetails)
     {
@@ -67,16 +67,27 @@ public static class PaymentUtils
                     Country = customerData.Country?.Trim() ?? ""
                 };
 
-                // Charge to convert single-use to multi-use token
-                // GP API requires a charge (not verify) to create multi-use token
-                var response = card.Charge(0.01m)
-                    .WithCurrency("GBP")
+                // Verify to convert single-use to multi-use token
+                // Using Verify (not a minimal charge) is the card brand-approved method for card-save flows.
+                // Flag as Cardholder Initiated (CIT), First in sequence — required by Visa/Mastercard/Amex
+                // for Credentials on File (COF) compliance. Store the returned SchemeId (network transaction ID)
+                // and pass it as SchemeId on every subsequent merchant-initiated charge.
+                var storedCredential = new StoredCredential
+                {
+                    Type = StoredCredentialType.Unscheduled,
+                    Initiator = StoredCredentialInitiator.CardHolder,
+                    Sequence = StoredCredentialSequence.First
+                };
+
+                var response = card.Verify()
+                    .WithCurrency("USD")
                     .WithRequestMultiUseToken(true)
+                    .WithStoredCredential(storedCredential)
                     .WithAddress(address)
                     .Execute();
 
                 if (response.ResponseCode == "SUCCESS" &&
-                    response.ResponseMessage == "CAPTURED")
+                    response.ResponseMessage == "VERIFIED")
                 {
                     var brand = DetermineCardBrandFromType(cardDetails.CardType ?? "");
                     var multiUseToken = response.Token ?? paymentToken;
@@ -88,7 +99,8 @@ public static class PaymentUtils
                         Last4 = cardDetails.CardLast4 ?? "",
                         ExpiryMonth = cardDetails.ExpiryMonth ?? "",
                         ExpiryYear = cardDetails.ExpiryYear ?? "",
-                        CustomerData = customerData
+                        CustomerData = customerData,
+                        NetworkTransactionId = response.SchemeId  // Store for COF on subsequent charges
                     };
                 }
                 else

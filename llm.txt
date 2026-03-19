@@ -4,7 +4,7 @@
 
 This repository provides **working reference implementations** for:
 
-- **Multi-Use Token Creation** - Critical pattern: `charge(0.01).withRequestMultiUseToken(true)` (NOT verify)
+- **Multi-Use Token Creation** - Critical pattern: `verify().withRequestMultiUseToken(true)` for card-save flows (NOT a minimal charge)
 - **Payment Method Storage** - JSON-based persistence with customer data integration  
 - **One-Click Payments** - Process charges using stored multi-use tokens
 - **Mock Mode Support** - Test without credentials using simulated API responses
@@ -15,7 +15,7 @@ This repository provides **working reference implementations** for:
 
 **Tech Stack**: PHP 7.4+ | Java 11+ | .NET 9.0+ with Global Payments SDK (v13.1+ / v14.2.20+ / v9.0.16+)
 
-**Key Pattern to Understand**: GP API requires a **charge** (not verify) with `.withRequestMultiUseToken(true)` flag to create multi-use tokens with customer data. All three implementations demonstrate this exact pattern.
+**Key Pattern to Understand**: For card-save flows, use **`Verify`** (not a minimal charge) with `.withRequestMultiUseToken(true)` to create multi-use tokens. `Verify` performs a card brand-approved $0 auth. Using a small charge purely for tokenization is treated as misuse of authorizations by card brands and incurs interchange penalties. All three implementations demonstrate this pattern.
 
 ## Core Documentation
 
@@ -26,7 +26,7 @@ This repository provides **working reference implementations** for:
 
 ## Critical Code Examples
 
-- [PHP: Multi-Use Token Creation](php/PaymentUtils.php#L83-L130): **CANONICAL** - Working implementation of charge-based token creation
+- [PHP: Multi-Use Token Creation](php/PaymentUtils.php#L83-L130): **CANONICAL** - Working implementation of verify-based token creation
 - [Java: Multi-Use Token Creation](java/src/main/java/com/globalpayments/example/PaymentUtils.java#L247-L285): **CANONICAL** - Java implementation with identical pattern
 - [.NET: Multi-Use Token Creation](dotnet/PaymentUtils.cs#L48-L95): **CANONICAL** - C# async implementation
 - [PHP: SDK Configuration](php/PaymentUtils.php#L25-L38): How to configure GP API credentials
@@ -103,15 +103,16 @@ public static function createMultiUseTokenWithCustomer(string $paymentToken, arr
     $address->postalCode = self::sanitizePostalCode($customerData['billing_zip'] ?? '');
     $address->country = trim($customerData['country'] ?? '');
 
-    // CRITICAL: Use charge (not verify) with withRequestMultiUseToken flag
-    $response = $tokenizedCard->charge(0.01)
+    // CRITICAL: Use Verify (not a minimal charge) with withRequestMultiUseToken flag
+    // A minimal charge for tokenization is misuse of authorizations per card brand rules
+    $response = $tokenizedCard->verify()
         ->withCurrency('USD')
         ->withRequestMultiUseToken(true)  // This flag is REQUIRED for multi-use tokens
         ->withAddress($address)
         ->execute();
 
     if ($response->responseCode === 'SUCCESS' &&
-        $response->responseMessage === TransactionStatus::CAPTURED) {
+        $response->responseMessage === 'VERIFIED') {
         
         $multiUseToken = $response->token ?? $paymentToken;
         
@@ -183,15 +184,16 @@ public static MultiUseTokenResult createMultiUseTokenWithCustomer(String payment
     address.setPostalCode(sanitizePostalCode(customerData.billingZip));
     address.setCountry(customerData.country.trim());
 
-    // CRITICAL: Use charge (not verify) with withRequestMultiUseToken flag
-    Transaction response = card.charge(new BigDecimal("0.01"))
+    // CRITICAL: Use Verify (not a minimal charge) with withRequestMultiUseToken flag
+    // A minimal charge for tokenization is misuse of authorizations per card brand rules
+    Transaction response = card.verify()
             .withCurrency("USD")
             .withRequestMultiUseToken(true)  // This flag is REQUIRED for multi-use tokens
             .withAddress(address)
             .execute();
 
     if ("SUCCESS".equals(response.getResponseCode()) &&
-        "CAPTURED".equals(response.getResponseMessage())) {
+        "VERIFIED".equals(response.getResponseMessage())) {
         
         String finalToken = response.getToken() != null ? response.getToken() : paymentToken;
 
@@ -230,15 +232,16 @@ public static async Task<MultiUseTokenResult> CreateMultiUseTokenWithCustomerAsy
             Country = customerData.Country?.Trim() ?? ""
         };
 
-        // CRITICAL: Use charge (not verify) with WithRequestMultiUseToken flag
-        var response = card.Charge(0.01m)
+        // CRITICAL: Use Verify (not a minimal charge) with WithRequestMultiUseToken flag
+        // A minimal charge for tokenization is misuse of authorizations per card brand rules
+        var response = card.Verify()
             .WithCurrency("USD")
             .WithRequestMultiUseToken(true)  // This flag is REQUIRED for multi-use tokens
             .WithAddress(address)
             .Execute();
 
         if (response.ResponseCode == "SUCCESS" &&
-            response.ResponseMessage == "CAPTURED")
+            response.ResponseMessage == "VERIFIED")
         {
             var multiUseToken = response.Token ?? paymentToken;
 
@@ -403,9 +406,11 @@ All test cards accept any future expiration date.
 
 ## Critical Implementation Notes
 
-### Why Charge Instead of Verify?
+### Why Verify Instead of a Minimal Charge?
 
-GP API requires a **charge transaction** (not verify) to create multi-use tokens with customer data integration. All three implementations use `charge(0.01)` with the `.withRequestMultiUseToken(true)` flag.
+For card-save flows (where no immediate payment is being taken), the correct approach is `Verify` with `.withRequestMultiUseToken(true)`. `Verify` performs a card brand-approved $0 authorization that confirms the card is valid and binds multi-use permission to the token. Using a minimal charge (e.g. $0.01) purely for tokenization is treated as misuse of authorizations by card brands and results in an assessed interchange fee penalty to the merchant.
+
+If the card-save happens as part of an initial purchase, a `Charge` with `.withRequestMultiUseToken(true)` can be used instead — that captures the payment and returns the multi-use token in a single call.
 
 ### Expiration Date Handling
 
@@ -437,7 +442,7 @@ For production, implement proper database storage, authentication, encryption, a
 1. Receive single-use token and customer data
 2. Create `CreditCardData` object with token
 3. Create `Address` object with customer billing info
-4. Execute charge with `.withRequestMultiUseToken(true)` flag
+4. Execute `Verify` with `.withRequestMultiUseToken(true)` flag (card-save flow)
 5. Store returned multi-use token with customer data
 6. Return payment method ID to frontend
 

@@ -93,8 +93,9 @@ public class ChargeServlet extends HttpServlet {
                 if (appKey != null && !appKey.trim().isEmpty()) {
                     try {
                         String storedPaymentToken = (String) paymentMethod.get("storedPaymentToken");
+                        String networkTransactionId = (String) paymentMethod.get("networkTransactionId");
                         System.out.println("🟢 LIVE MODE - Processing payment via GP API...");
-                        transactionResult = PaymentUtils.processPaymentWithSDK(storedPaymentToken, amount, currency);
+                        transactionResult = PaymentUtils.processPaymentWithSDK(storedPaymentToken, amount, currency, networkTransactionId);
                         System.out.println("✅ LIVE PAYMENT COMPLETE");
                     } catch (Exception e) {
                         System.err.println("❌ LIVE MODE - Payment processing failed:");
