@@ -13,7 +13,7 @@ A comprehensive multi-language demonstration of multi-use one-click payment proc
 
 ### Development & Testing
 - **Mock Mode Support** - Test payment flows with simulated responses without hitting live APIs
-- **Test Card Integration** - Built-in Heartland certification test cards for development
+- **Test Card Integration** - Built-in Global Payments test cards for development
 - **Comprehensive Web Interface** - Complete UI with payment method management and transaction processing
 - **Global Payments SDK Integration** - Secure tokenization using hosted payment fields
 
@@ -40,7 +40,7 @@ Each implementation provides identical functionality with language-specific best
 ### Frontend Architecture
 - **Global Payments SDK Integration** - Secure tokenization with hosted payment fields
 - **Responsive Web Interface** - Complete payment management UI
-- **Test Card Helper** - Integrated Heartland certification test cards
+- **Test Card Helper** - Integrated Global Payments test cards
 - **Real-Time Validation** - Client-side form validation and error handling
 
 ### Backend Architecture
@@ -64,7 +64,7 @@ Each implementation provides identical functionality with language-specific best
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Global Payments account with API credentials ([Sign up here](https://developer.globalpay.com/))
+- Global Payments account with API credentials ([Sign up here](https://developer.globalpayments.com/))
 - Development environment for your chosen language
 - Package manager (npm, composer, maven, dotnet, go mod)
 
@@ -120,7 +120,7 @@ Each implementation includes a mock mode that allows you to:
 - Toggle between mock and live modes via the UI
 
 ### Test Cards
-Built-in Heartland certification test cards:
+Built-in Global Payments test cards:
 - **Visa**: 4012002000060016
 - **MasterCard**: 2223000010005780, 5473500000000014
 - **Discover**: 6011000990156527
@@ -209,7 +209,7 @@ This project is provided as an educational example for Global Payments SDK integ
 ## 🆘 Support
 
 For technical support:
-- **Global Payments Developer Documentation**: [https://developer.globalpay.com/](https://developer.globalpay.com/)
+- **Global Payments Developer Documentation**: [https://developer.globalpayments.com/](https://developer.globalpayments.com/)
 - **SDK Documentation**: Language-specific SDK guides
 - **Community Support**: Developer forums and resources
 

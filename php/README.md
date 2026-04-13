@@ -37,7 +37,7 @@ A PHP-based payment system that creates multi-use tokens with customer data for 
    APP_KEY=your_gp_api_app_key
    GP_API_ENVIRONMENT=sandbox
    ```
-   Get your credentials from: https://developer.globalpay.com/
+   Get your credentials from: https://developer.globalpayments.com/
 4. Install dependencies:
    ```bash
    composer install
@@ -277,7 +277,7 @@ Multi-use stored payment tokens support various payment scenarios:
 
 **Payment Processing**:
 - Use GP API test cards: 4263970000005262 (Visa), 5425230000004415 (Mastercard)
-- Test credentials available from: https://developer.globalpay.com/
+- Test credentials available from: https://developer.globalpayments.com/
 - Enable mock mode toggle in UI for testing without credentials
 - Check browser console for frontend errors
 - Verify API responses in Network tab
