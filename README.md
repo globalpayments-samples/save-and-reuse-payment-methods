@@ -171,6 +171,15 @@ Before deploying to production:
 - **Authentication**: Add user authentication and authorization
 - **Compliance**: Ensure PCI DSS compliance measures
 
+## Security Considerations
+
+- **PCI Compliance** — Drop-In UI handles card data client-side; your server never sees raw card numbers
+- **Token-Based Processing** — All payments use multi-use tokens, not card data
+- **Credential Isolation** — Store API keys in `.env` files, never commit to version control
+- **HTTPS Required** — Always use TLS in production environments
+- **Input Validation** — Validate and sanitize all user input server-side
+- **JSON Storage Limitation** — File-based storage is for demo only; use an encrypted database in production
+
 ## 📚 Documentation
 
 Each language implementation includes detailed documentation:
@@ -206,13 +215,11 @@ This project serves as a comprehensive example for Global Payments SDK integrati
 
 This project is provided as an educational example for Global Payments SDK integration. Please review the license file for specific terms and conditions.
 
-## 🆘 Support
+## Resources
 
-For technical support:
-- **Global Payments Developer Documentation**: [https://developer.globalpayments.com/](https://developer.globalpayments.com/)
-- **SDK Documentation**: Language-specific SDK guides
-- **Community Support**: Developer forums and resources
-
----
-
-**Note**: This is a demonstration application for development and testing purposes. For production use, implement additional security measures, error handling, and compliance requirements specific to your use case.
+- [Global Payments Developer Portal](https://developer.globalpayments.com/)
+- [API Reference](https://developer.globalpayments.com/api/references-overview)
+- [Test Cards](https://developer.globalpayments.com/resources/test-cards)
+- [PHP SDK](https://github.com/globalpayments/php-sdk)
+- [Java SDK](https://github.com/globalpayments/java-sdk)
+- [.NET SDK](https://github.com/globalpayments/dotnet-sdk)
