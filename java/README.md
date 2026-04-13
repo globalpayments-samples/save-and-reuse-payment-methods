@@ -458,3 +458,13 @@ mvn clean package
 - Check for servlet lifecycle issues in initialization
 - Ensure proper request/response handling in doGet/doPost methods
 - Validate servlet mapping annotations or web.xml configuration
+
+---
+
+## Resources
+
+- [Parent Project README](../README.md)
+- [Global Payments Developer Portal](https://developer.globalpayments.com/)
+- [API Reference](https://developer.globalpayments.com/api/references-overview)
+- [Java SDK](https://github.com/globalpayments/java-sdk)
+- [Test Cards](https://developer.globalpayments.com/resources/test-cards)

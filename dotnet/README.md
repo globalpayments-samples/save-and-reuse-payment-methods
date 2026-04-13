@@ -433,3 +433,13 @@ For production deployment, enhance with:
 - Check for dependency injection configuration errors
 - Ensure proper controller routing
 - Validate model binding and validation attributes
+
+---
+
+## Resources
+
+- [Parent Project README](../README.md)
+- [Global Payments Developer Portal](https://developer.globalpayments.com/)
+- [API Reference](https://developer.globalpayments.com/api/references-overview)
+- [.NET SDK](https://github.com/globalpayments/dotnet-sdk)
+- [Test Cards](https://developer.globalpayments.com/resources/test-cards)

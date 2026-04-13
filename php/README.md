@@ -304,3 +304,13 @@ For production use:
 - Use environment variables for sensitive configuration
 - Implement CSRF protection for forms
 - Regular security updates for dependencies
+
+---
+
+## Resources
+
+- [Parent Project README](../README.md)
+- [Global Payments Developer Portal](https://developer.globalpayments.com/)
+- [API Reference](https://developer.globalpayments.com/api/references-overview)
+- [PHP SDK](https://github.com/globalpayments/php-sdk)
+- [Test Cards](https://developer.globalpayments.com/resources/test-cards)
