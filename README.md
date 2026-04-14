@@ -223,3 +223,13 @@ This project is provided as an educational example for Global Payments SDK integ
 - [PHP SDK](https://github.com/globalpayments/php-sdk)
 - [Java SDK](https://github.com/globalpayments/java-sdk)
 - [.NET SDK](https://github.com/globalpayments/dotnet-sdk)
+
+## Community
+
+- 🌐 **Developer Portal** — [developer.globalpayments.com](https://developer.globalpayments.com)
+- 💬 **Discord** — [Join the community](https://discord.gg/myER9G9qkc)
+- 📋 **GitHub Discussions** — [github.com/globalpayments-samples](https://github.com/globalpayments-samples)
+- 📧 **Newsletter** — [Subscribe](https://www.globalpayments.com/en-gb/modals/newsletter)
+- 💼 **LinkedIn** — [Global Payments for Developers](https://www.linkedin.com/showcase/global-payments-for-developers/posts/?feedView=all)
+
+Have a question or found a bug? [Open an issue](https://github.com/globalpayments-samples/save-and-reuse-payment-methods/issues) or reach out at [communityexperience@globalpay.com](mailto:communityexperience@globalpay.com).
