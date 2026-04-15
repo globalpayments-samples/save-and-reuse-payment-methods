@@ -9,7 +9,7 @@ This example demonstrates a comprehensive Save and Reuse Payment Methods System 
 - **One-Click Payments** - Process charges using stored multi-use payment methods
 - **Mock Mode** - Test payment flows with simulated responses without hitting live APIs
 - **Comprehensive UI** - Complete web interface with payment method management and transaction processing
-- **Test Card Integration** - Built-in Heartland certification test cards for development and testing
+- **Test Card Integration** - Built-in Global Payments test cards for development and testing
 
 ## Requirements
 
@@ -253,7 +253,7 @@ Mock mode allows you to test payment flows without hitting live APIs:
 
 ## Built-in Test Cards
 
-The system includes Heartland certification test cards:
+The system includes Global Payments test cards:
 - **Visa**: 4012002000060016
 - **MasterCard**: 2223000010005780, 5473500000000014
 - **Discover**: 6011000990156527  
@@ -433,3 +433,13 @@ For production deployment, enhance with:
 - Check for dependency injection configuration errors
 - Ensure proper controller routing
 - Validate model binding and validation attributes
+
+---
+
+## Resources
+
+- [Parent Project README](../README.md)
+- [Global Payments Developer Portal](https://developer.globalpayments.com/)
+- [API Reference](https://developer.globalpayments.com/api/references-overview)
+- [.NET SDK](https://github.com/globalpayments/dotnet-sdk)
+- [Test Cards](https://developer.globalpayments.com/resources/test-cards)

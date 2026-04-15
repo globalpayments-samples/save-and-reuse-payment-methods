@@ -13,7 +13,7 @@ A comprehensive multi-language demonstration of multi-use one-click payment proc
 
 ### Development & Testing
 - **Mock Mode Support** - Test payment flows with simulated responses without hitting live APIs
-- **Test Card Integration** - Built-in Heartland certification test cards for development
+- **Test Card Integration** - Built-in Global Payments test cards for development
 - **Comprehensive Web Interface** - Complete UI with payment method management and transaction processing
 - **Global Payments SDK Integration** - Secure tokenization using hosted payment fields
 
@@ -40,7 +40,7 @@ Each implementation provides identical functionality with language-specific best
 ### Frontend Architecture
 - **Global Payments SDK Integration** - Secure tokenization with hosted payment fields
 - **Responsive Web Interface** - Complete payment management UI
-- **Test Card Helper** - Integrated Heartland certification test cards
+- **Test Card Helper** - Integrated Global Payments test cards
 - **Real-Time Validation** - Client-side form validation and error handling
 
 ### Backend Architecture
@@ -64,7 +64,7 @@ Each implementation provides identical functionality with language-specific best
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Global Payments account with API credentials ([Sign up here](https://developer.globalpay.com/))
+- Global Payments account with API credentials ([Sign up here](https://developer.globalpayments.com/))
 - Development environment for your chosen language
 - Package manager (npm, composer, maven, dotnet, go mod)
 
@@ -120,7 +120,7 @@ Each implementation includes a mock mode that allows you to:
 - Toggle between mock and live modes via the UI
 
 ### Test Cards
-Built-in Heartland certification test cards:
+Built-in Global Payments test cards:
 - **Visa**: 4012002000060016
 - **MasterCard**: 2223000010005780, 5473500000000014
 - **Discover**: 6011000990156527
@@ -171,6 +171,15 @@ Before deploying to production:
 - **Authentication**: Add user authentication and authorization
 - **Compliance**: Ensure PCI DSS compliance measures
 
+## Security Considerations
+
+- **PCI Compliance** — Drop-In UI handles card data client-side; your server never sees raw card numbers
+- **Token-Based Processing** — All payments use multi-use tokens, not card data
+- **Credential Isolation** — Store API keys in `.env` files, never commit to version control
+- **HTTPS Required** — Always use TLS in production environments
+- **Input Validation** — Validate and sanitize all user input server-side
+- **JSON Storage Limitation** — File-based storage is for demo only; use an encrypted database in production
+
 ## 📚 Documentation
 
 Each language implementation includes detailed documentation:
@@ -206,13 +215,21 @@ This project serves as a comprehensive example for Global Payments SDK integrati
 
 This project is provided as an educational example for Global Payments SDK integration. Please review the license file for specific terms and conditions.
 
-## 🆘 Support
+## Resources
 
-For technical support:
-- **Global Payments Developer Documentation**: [https://developer.globalpay.com/](https://developer.globalpay.com/)
-- **SDK Documentation**: Language-specific SDK guides
-- **Community Support**: Developer forums and resources
+- [Global Payments Developer Portal](https://developer.globalpayments.com/)
+- [API Reference](https://developer.globalpayments.com/api/references-overview)
+- [Test Cards](https://developer.globalpayments.com/resources/test-cards)
+- [PHP SDK](https://github.com/globalpayments/php-sdk)
+- [Java SDK](https://github.com/globalpayments/java-sdk)
+- [.NET SDK](https://github.com/globalpayments/dotnet-sdk)
 
----
+## Community
 
-**Note**: This is a demonstration application for development and testing purposes. For production use, implement additional security measures, error handling, and compliance requirements specific to your use case.
+- 🌐 **Developer Portal** — [developer.globalpayments.com](https://developer.globalpayments.com)
+- 💬 **Discord** — [Join the community](https://discord.gg/myER9G9qkc)
+- 📋 **GitHub Discussions** — [github.com/orgs/globalpayments/discussions](https://github.com/orgs/globalpayments/discussions)
+- 📧 **Newsletter** — [Subscribe](https://www.globalpayments.com/en-gb/modals/newsletter)
+- 💼 **LinkedIn** — [Global Payments for Developers](https://www.linkedin.com/showcase/global-payments-for-developers/posts/?feedView=all)
+
+Have a question or found a bug? [Open an issue](https://github.com/globalpayments-samples/save-and-reuse-payment-methods/issues) or reach out at [communityexperience@globalpay.com](mailto:communityexperience@globalpay.com).

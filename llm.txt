@@ -315,7 +315,7 @@ Required usings:
 All implementations require these environment variables:
 
 ```bash
-GP_API_APP_ID=your_app_id           # From developer.globalpay.com
+GP_API_APP_ID=your_app_id           # From developer.globalpayments.com
 GP_API_APP_KEY=your_app_key         # Application secret key
 GP_API_ENVIRONMENT=sandbox          # sandbox or production
 ```
@@ -468,7 +468,7 @@ docker-compose up dotnet
 
 ## Additional Resources
 
-- [Global Payments Developer Portal](https://developer.globalpay.com/): Official API documentation
+- [Global Payments Developer Portal](https://developer.globalpayments.com/): Official API documentation
 - [Global Payments SDK GitHub](https://github.com/globalpayments): SDK source code
 - [Docker Installation](https://docs.docker.com/get-docker/): For containerized development
 - [Composer Documentation](https://getcomposer.org/doc/): PHP dependency management
