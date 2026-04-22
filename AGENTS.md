@@ -15,20 +15,20 @@
 ## Repository Structure
 
 ### PHP (Native PHP + Composer)
-- [`php/PaymentUtils.php`](php/PaymentUtils.php) — **CANONICAL** SDK config (L25–38) and token creation (L83–130)
+- [`php/PaymentUtils.php`](php/PaymentUtils.php) — **CANONICAL** SDK config (L29–42) and token creation (L87–130)
 - [`php/payment-methods.php`](php/payment-methods.php) — token creation endpoint
 - [`php/charge.php`](php/charge.php) — payment processing endpoint
 - [`php/JsonStorage.php`](php/JsonStorage.php) — file-based storage
 - [`php/MockResponses.php`](php/MockResponses.php) — simulated API responses
 
 ### Java (Jakarta EE + Maven)
-- [`java/.../PaymentUtils.java`](java/src/main/java/com/globalpayments/example/PaymentUtils.java) — **CANONICAL** SDK config (L32–45) and token creation (L247–285)
+- [`java/.../PaymentUtils.java`](java/src/main/java/com/globalpayments/example/PaymentUtils.java) — **CANONICAL** SDK config (L37–52) and token creation (L262–310)
 - [`java/.../PaymentMethodsServlet.java`](java/src/main/java/com/globalpayments/example/PaymentMethodsServlet.java) — token creation servlet
 - [`java/.../ChargeServlet.java`](java/src/main/java/com/globalpayments/example/ChargeServlet.java) — payment processing servlet
 
 ### .NET (ASP.NET Core)
 - [`dotnet/PaymentUtils.cs`](dotnet/PaymentUtils.cs) — **CANONICAL** async token creation (L48–95)
-- [`dotnet/Program.cs`](dotnet/Program.cs) — all REST endpoints + SDK config (L30–55)
+- [`dotnet/Program.cs`](dotnet/Program.cs) — SDK config (L69–91), all REST endpoints (L93+)
 - [`dotnet/Models.cs`](dotnet/Models.cs) — request/response models
 
 ### Shared
@@ -60,8 +60,8 @@ GP_API_ENVIRONMENT=sandbox     # sandbox or production
 
 | Network | PAN | CVV |
 |---------|-----|-----|
-| Visa | 4012002000060016 | 123 |
-| Mastercard | 5473500000000014 | 123 |
+| Visa | 4263970000005262 | 123 |
+| Mastercard | 5425230000004415 | 123 |
 | Discover | 6011000990156527 | 123 |
 | Amex | 372700699251018 | 1234 |
 
