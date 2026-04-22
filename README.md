@@ -37,6 +37,34 @@ Each implementation provides identical functionality with language-specific best
 
 ## 🏗️ Architecture Overview
 
+### Token Lifecycle
+
+```mermaid
+sequenceDiagram
+    participant B as Browser
+    participant GP_JS as globalpayments.js
+    participant S as Backend
+    participant GP as GP API
+
+    B->>S: GET /config
+    S-->>B: { publicApiKey }
+    B->>GP_JS: Initialize hosted payment fields
+    B->>GP_JS: Customer enters card details
+    GP_JS->>GP: Tokenize card (PCI-compliant)
+    GP-->>B: single-use token
+
+    B->>S: POST /payment-methods (single-use token + billing info)
+    S->>GP: Convert to multi-use token
+    GP-->>S: { paymentMethodToken }
+    S-->>B: Payment method saved
+
+    Note over B,GP: Later — charge a saved method
+    B->>S: POST /charge (paymentMethodToken)
+    S->>GP: card.charge(amount) with stored token
+    GP-->>S: { transactionId, status: "CAPTURED" }
+    S-->>B: Charge successful
+```
+
 ### Frontend Architecture
 - **Global Payments SDK Integration** - Secure tokenization with hosted payment fields
 - **Responsive Web Interface** - Complete payment management UI
