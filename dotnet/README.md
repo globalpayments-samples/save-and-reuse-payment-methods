@@ -144,7 +144,7 @@ Create multi-use token with customer data or edit an existing payment method.
 **Legacy Card Entry Request:**
 ```json
 {
-  "cardNumber": "4012002000060016",
+  "cardNumber": "4263970000005262",
   "expiryMonth": "12",
   "expiryYear": "2028",
   "cvv": "123",
@@ -254,8 +254,8 @@ Mock mode allows you to test payment flows without hitting live APIs:
 ## Built-in Test Cards
 
 The system includes Global Payments test cards:
-- **Visa**: 4012002000060016
-- **MasterCard**: 2223000010005780, 5473500000000014
+- **Visa**: 4263970000005262
+- **MasterCard**: 5425230000004415
 - **Discover**: 6011000990156527  
 - **American Express**: 372700699251018
 - **JCB**: 3566007770007321
