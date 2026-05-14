@@ -1,38 +1,45 @@
 # Save and Reuse Payment Methods
 
-> Multi-language demonstration of payment method storage and one-click payment processing using Global Payments SDK. Shows how to convert single-use tokens to multi-use stored tokens with integrated customer data across PHP, Java, and .NET implementations.
+> Multi-language demonstration of payment method storage and one-click payment processing using the Global Payments SDK — converting single-use tokens to stored multi-use tokens across PHP, Java, and .NET.
 
 ## Critical Patterns
 
 1. **Card-save flows use `Verify` + `withRequestMultiUseToken(true)` — not a minimal charge.**
-   `Verify` performs a card brand-approved $0 auth. A `$0.01` charge for tokenization is misuse of authorizations and incurs interchange penalties on the merchant.
+   `Verify` performs a card brand-approved $0 auth. A `$0.01` charge for tokenization is misuse of the authorization flow and incurs interchange penalties on the merchant.
    If card-save happens alongside an initial purchase, `Charge` with `withRequestMultiUseToken(true)` works too — it captures payment and returns the multi-use token in one call.
 
-2. **The `PaymentUtils` files are the reference implementations for each language.** If you're adapting this for your own stack, start there — the token creation and SDK configuration patterns are the parts most worth copying.
+2. **Credentials on File (COF) flags are required on both the Verify and every subsequent charge.**
+   The initial `Verify` must set `StoredCredential` to `Unscheduled / CardHolder / First`. The `SchemeId` (network transaction ID) returned in the response must be stored and passed as `schemeId` on every subsequent merchant-initiated charge (`Unscheduled / Merchant / Subsequent`). Missing these flags violates Visa/Mastercard/Amex mandates and can cause downstream declines. See `createMultiUseTokenWithCustomer()` and `processPaymentWithSDK()` in each `PaymentUtils` file.
 
-3. **Mock mode activates automatically when no GP API credentials are present.** Mock responses mirror real API shapes, so the app behaves identically without sandbox credentials.
+3. **The `PaymentUtils` files are the reference implementations for each language.** If you're adapting this for your own stack, start with `createMultiUseTokenWithCustomer()` for token creation and `configureSdk()` for GP API initialization — those two methods contain the patterns most worth copying.
+
+4. **Mock mode activates automatically when no GP API credentials are present.** Mock responses mirror real API shapes so the app behaves identically without sandbox credentials.
 
 ## Repository Structure
 
 ### PHP (Native PHP + Composer)
-- [`php/PaymentUtils.php`](php/PaymentUtils.php) — **CANONICAL** SDK config (L29–42) and token creation (L87–130)
+- [`php/PaymentUtils.php`](php/PaymentUtils.php) — SDK init (`configureSdk()`), token creation (`createMultiUseTokenWithCustomer()`), charge processing (`processPaymentWithSDK()`)
 - [`php/payment-methods.php`](php/payment-methods.php) — token creation endpoint
 - [`php/charge.php`](php/charge.php) — payment processing endpoint
 - [`php/JsonStorage.php`](php/JsonStorage.php) — file-based storage
 - [`php/MockResponses.php`](php/MockResponses.php) — simulated API responses
 
 ### Java (Jakarta EE + Maven)
-- [`java/.../PaymentUtils.java`](java/src/main/java/com/globalpayments/example/PaymentUtils.java) — **CANONICAL** SDK config (L37–52) and token creation (L262–310)
-- [`java/.../PaymentMethodsServlet.java`](java/src/main/java/com/globalpayments/example/PaymentMethodsServlet.java) — token creation servlet
-- [`java/.../ChargeServlet.java`](java/src/main/java/com/globalpayments/example/ChargeServlet.java) — payment processing servlet
+- [`java/src/main/java/com/globalpayments/example/PaymentUtils.java`](java/src/main/java/com/globalpayments/example/PaymentUtils.java) — SDK init (`configureSdk()`), token creation (`createMultiUseTokenWithCustomer()`), charge processing (`processPaymentWithSDK()`)
+- [`java/src/main/java/com/globalpayments/example/PaymentMethodsServlet.java`](java/src/main/java/com/globalpayments/example/PaymentMethodsServlet.java) — token creation servlet
+- [`java/src/main/java/com/globalpayments/example/ChargeServlet.java`](java/src/main/java/com/globalpayments/example/ChargeServlet.java) — payment processing servlet
+- [`java/src/main/java/com/globalpayments/example/ConfigServlet.java`](java/src/main/java/com/globalpayments/example/ConfigServlet.java) — frontend config servlet
+- [`java/src/main/java/com/globalpayments/example/MockModeServlet.java`](java/src/main/java/com/globalpayments/example/MockModeServlet.java) — mock mode toggle servlet
 
 ### .NET (ASP.NET Core)
-- [`dotnet/PaymentUtils.cs`](dotnet/PaymentUtils.cs) — **CANONICAL** async token creation (L48–95)
-- [`dotnet/Program.cs`](dotnet/Program.cs) — SDK config (L69–91), all REST endpoints (L93+)
+- [`dotnet/PaymentUtils.cs`](dotnet/PaymentUtils.cs) — async token creation (`CreateMultiUseTokenWithCustomerAsync()`)
+- [`dotnet/Program.cs`](dotnet/Program.cs) — SDK init (`ConfigureGlobalPaymentsSDK()`), all REST endpoints (`ConfigureEndpoints()`)
 - [`dotnet/Models.cs`](dotnet/Models.cs) — request/response models
+- [`dotnet/JsonStorage.cs`](dotnet/JsonStorage.cs) — file-based storage
+- [`dotnet/MockResponses.cs`](dotnet/MockResponses.cs) — simulated API responses
 
 ### Shared
-- [`docker-compose.yml`](docker-compose.yml) — PHP :8080, Java :8081, .NET :5000
+- [`docker-compose.yml`](docker-compose.yml) — PHP :8003, Java :8004, .NET :8006 (host) → internal :8000 each
 - [`php/composer.json`](php/composer.json), [`java/pom.xml`](java/pom.xml), [`dotnet/dotnet.csproj`](dotnet/dotnet.csproj) — dependency manifests
 
 ## API Surface
@@ -46,15 +53,20 @@ All three implementations expose identical endpoints:
 | GET | `/payment-methods` | Retrieve stored payment methods |
 | POST | `/payment-methods` | Convert single-use → multi-use token |
 | POST | `/charge` | Process $25 charge with stored token |
-| GET/POST | `/mock-mode` | Toggle mock responses |
+| GET | `/mock-mode` | Get mock mode status |
+| POST | `/mock-mode` | Toggle mock mode on/off |
 
 ## Environment Variables
+
+Each language has a `.env.sample` to copy from. All three read the same variables:
 
 ```bash
 GP_API_APP_ID=your_app_id      # From developer.globalpayments.com
 GP_API_APP_KEY=your_app_key
 GP_API_ENVIRONMENT=sandbox     # sandbox or production
 ```
+
+> Note: `docker-compose.yml` passes `PUBLIC_API_KEY`/`SECRET_API_KEY` instead of the `GP_API_*` vars above. The per-language `.env` files are the correct configuration path when running outside Docker.
 
 ## Sandbox Test Cards
 
@@ -69,16 +81,16 @@ Any future expiration date is accepted.
 
 ## Architecture Summary
 
-**Token creation:** Frontend hosted fields → single-use token → POST `/payment-methods` → `Verify` with `withRequestMultiUseToken(true)` → multi-use token stored with customer data.
+**Token creation:** Frontend hosted fields → single-use token → POST `/payment-methods` → `Verify` with `withRequestMultiUseToken(true)` + COF CIT/First flags → multi-use token + SchemeId stored with customer data.
 
-**Payment:** Frontend requests charge by payment method ID → backend retrieves stored token → `Charge` execute → transaction result.
+**Payment:** Frontend requests charge by payment method ID → backend retrieves stored token + SchemeId → `Charge` with COF MIT/Subsequent + SchemeId → transaction result.
 
 ## Security Notes
 
-This is demo code — not production-ready. JSON file storage has no encryption, no auth, no user isolation. For production: proper database, authentication, encryption at rest, and PCI DSS compliance are required.
+This is demo code — not production-ready. JSON file storage has no encryption, no auth, and no user isolation. For production: use a proper database, add authentication, encrypt data at rest, and meet PCI DSS requirements.
 
 ## SDK Versions
 
 - PHP: `globalpayments/php-sdk` v13.1+
-- Java: `globalpayments-sdk` v14.2.20+
-- .NET: `GlobalPayments.Api` v9.0.16+
+- Java: `globalpayments-sdk` v14.2.20
+- .NET: `GlobalPayments.Api` v9.0.16
