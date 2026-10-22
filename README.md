@@ -132,7 +132,7 @@ sequenceDiagram
    mvn clean compile cargo:run
 
    # PHP
-   composer install && php -S localhost:8000
+   cd php && ./run.sh
    ```
 
 5. **Access the application**
