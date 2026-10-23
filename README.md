@@ -31,7 +31,7 @@ Each implementation provides identical functionality with language-specific best
 |----------|-----------|--------------|--------|
 | Language | Framework | Requirements | Status |
 |----------|-----------|--------------|--------|
-| **[PHP](./php/)** - ([Preview](https://githubbox.com/globalpayments-samples/save-and-reuse-payment-methods/tree/main/php)) | Native PHP | PHP 7.4+, Composer | ✅ Complete |
+| **[PHP](./php/)** - ([Preview](https://githubbox.com/globalpayments-samples/save-and-reuse-payment-methods/tree/main/php)) | Native PHP | PHP 8.2.35+/8.3.36+/8.4.27+/8.5.12+, Composer | ✅ Complete |
 | **[Java](./java/)** - ([Preview](https://githubbox.com/globalpayments-samples/save-and-reuse-payment-methods/tree/main/java)) | Jakarta EE | Java 11+, Maven | ✅ Complete |
 | **[.NET](./dotnet/)** - ([Preview](https://githubbox.com/globalpayments-samples/save-and-reuse-payment-methods/tree/main/dotnet)) | ASP.NET Core | .NET 9.0+ | ✅ Complete |
 
