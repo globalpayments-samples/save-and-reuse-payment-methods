@@ -27,8 +27,14 @@ if (empty($path) || $path === '/') {
     return false;
 }
 
+// Never serve hidden files (.env), vendor/ or node_modules/
+if (preg_match('#(^|/)(\.|vendor/|node_modules/)#', rawurldecode($path))) {
+    http_response_code(404);
+    return true;
+}
+
 // Serve static files directly (CSS, JS, images, etc.)
-$staticExtensions = ['css', 'js', 'png', 'jpg', 'jpeg', 'gif', 'ico', 'svg', 'woff', 'woff2', 'ttf'];
+$staticExtensions = ['html', 'css', 'js', 'png', 'jpg', 'jpeg', 'gif', 'ico', 'svg', 'woff', 'woff2', 'ttf'];
 $pathInfo = pathinfo($path);
 if (isset($pathInfo['extension']) && in_array(strtolower($pathInfo['extension']), $staticExtensions)) {
     if (file_exists($path)) {
@@ -42,6 +48,12 @@ if (isset($pathInfo['extension']) && in_array(strtolower($pathInfo['extension'])
 $apiPaths = ['health', 'payment-methods', 'charge', 'config', 'mock-mode'];
 if (in_array($path, $apiPaths)) {
     require_once 'index.php';
+    return true;
+}
+
+// config.php is also called directly (docker-compose health check)
+if ($path === 'config.php') {
+    require_once 'config.php';
     return true;
 }
 

@@ -13,7 +13,7 @@ This example demonstrates a comprehensive Save and Reuse Payment Methods System 
 
 ## Requirements
 
-- .NET 9.0 or later
+- .NET 10.0 or later
 - Global Payments account and API credentials
 
 ## Project Structure
@@ -376,7 +376,7 @@ For production deployment, enhance with:
 ### Common Issues
 
 **.NET Version Issues**:
-- Ensure .NET 6.0 or later is installed
+- Ensure .NET 10.0 or later is installed
 - Check version with `dotnet --version`
 - Verify SDK is installed: `dotnet --list-sdks`
 - Update .NET from https://dotnet.microsoft.com/download
