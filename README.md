@@ -129,7 +129,7 @@ sequenceDiagram
    dotnet restore && dotnet run
 
    # Java
-   mvn clean compile cargo:run
+   mvn clean package cargo:run
 
    # PHP
    cd php && ./run.sh

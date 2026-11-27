@@ -9,7 +9,7 @@
    If card-save happens alongside an initial purchase, `Charge` with `withRequestMultiUseToken(true)` works too — it captures payment and returns the multi-use token in one call.
 
 2. **Credentials on File (COF) flags are required on both the Verify and every subsequent charge.**
-   The initial `Verify` must set `StoredCredential` to `Unscheduled / CardHolder / First`. The `SchemeId` (network transaction ID) returned in the response must be stored and passed as `schemeId` on every subsequent merchant-initiated charge (`Unscheduled / Merchant / Subsequent`). Missing these flags violates Visa/Mastercard/Amex mandates and can cause downstream declines. See `createMultiUseTokenWithCustomer()` and `processPaymentWithSDK()` in each `PaymentUtils` file (PHP/Java), and `ProcessPayment()` in `Program.cs` (.NET).
+   The initial `Verify` must set `StoredCredential` to `Unscheduled / CardHolder / First`. The card brand reference returned in the response (`cardBrandTransactionId` in the SDKs, `card.brand_reference` in GP API) must be stored and sent with `withCardBrandStorage()` on every subsequent merchant-initiated charge (`Unscheduled / Merchant / Subsequent`). `StoredCredential.schemeId` is only used by GP Ecom, GP API ignores it. Missing these flags violates Visa/Mastercard/Amex mandates and can cause downstream declines. See `createMultiUseTokenWithCustomer()` and `processPaymentWithSDK()` in each `PaymentUtils` file (PHP/Java), and `ProcessPayment()` in `Program.cs` (.NET).
 
 3. **The `PaymentUtils` files are the reference implementations for each language.** If you're adapting this for your own stack, start with `createMultiUseTokenWithCustomer()` for token creation and `configureSdk()` for GP API initialization — those two methods contain the patterns most worth copying.
 
@@ -84,9 +84,9 @@ Any future expiration date is accepted.
 
 ## Architecture Summary
 
-**Token creation:** Frontend hosted fields → single-use token → POST `/payment-methods` → `Verify` with `withRequestMultiUseToken(true)` + COF CIT/First flags → multi-use token + SchemeId stored with customer data.
+**Token creation:** Frontend hosted fields → single-use token → POST `/payment-methods` → `Verify` with `withRequestMultiUseToken(true)` + COF CIT/First flags → multi-use token + card brand reference stored with customer data.
 
-**Payment:** Frontend requests charge by payment method ID → backend retrieves stored token + SchemeId → `Charge` with COF MIT/Subsequent + SchemeId → transaction result.
+**Payment:** Frontend requests charge by payment method ID → backend retrieves stored token + card brand reference → `Charge` with COF MIT/Subsequent + `withCardBrandStorage()` → transaction result.
 
 ## Security Notes
 
