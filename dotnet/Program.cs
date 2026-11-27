@@ -585,12 +585,17 @@ public class Program
 
                 var response = builder.Execute();
 
+                if (response.ResponseCode != "SUCCESS" || response.ResponseMessage != "CAPTURED")
+                {
+                    throw new Exception($"Payment failed: {response.ResponseMessage ?? "Unknown error"}");
+                }
+
                 return new ChargeResponseData
                 {
                     TransactionId = response.TransactionId ?? "",
                     Amount = amount,
                     Currency = "USD",
-                    Status = response.ResponseCode == "SUCCESS" ? "approved" : "declined",
+                    Status = "approved",
                     ResponseCode = response.ResponseCode ?? "",
                     ResponseMessage = response.ResponseMessage ?? "",
                     Timestamp = DateTime.UtcNow,
