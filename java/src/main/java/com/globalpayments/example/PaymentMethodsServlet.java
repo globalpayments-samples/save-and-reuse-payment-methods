@@ -169,12 +169,9 @@ public class PaymentMethodsServlet extends HttpServlet {
                         } catch (Exception e) {
                             System.err.println("❌ LIVE MODE - Multi-use token creation failed:");
                             System.err.println("   Error: " + e.getMessage());
-                            e.printStackTrace();
-                            // Fall back to mock mode
-                            mockMode = true;
-                            cardDetails = MockResponses.getCardDetailsFromToken(paymentToken);
-                            finalToken = paymentToken;
-                            System.out.println("🟡 FALLBACK - Switching to mock mode due to token creation failure");
+                            // A card that fails verification must not be saved
+                            sendErrorResponse(response, 422, "Card could not be saved: " + e.getMessage(), "VERIFICATION_FAILED");
+                            return;
                         }
                     } else {
                         System.err.println("❌ CONFIGURATION ERROR - No GP_API_APP_KEY found in environment");
