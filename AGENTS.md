@@ -84,7 +84,7 @@ Any future expiration date is accepted.
 
 ## Architecture Summary
 
-**Token creation:** Frontend hosted fields → single-use token → POST `/payment-methods` → `Verify` with `withRequestMultiUseToken(true)` + COF CIT/First flags → multi-use token + card brand reference stored with customer data.
+**Token creation:** Frontend hosted fields → single-use token → POST `/payment-methods` → `Verify` with `withRequestMultiUseToken(true)` + COF CIT/First flags → multi-use token + card brand reference stored with customer data. The Java and .NET SDKs return no new token from that Verify, so those two switch the verified token to multi use with updateToken() / UpdateToken() before storing it.
 
 **Payment:** Frontend requests charge by payment method ID → backend retrieves stored token + card brand reference → `Charge` with COF MIT/Subsequent + `withCardBrandStorage()` → transaction result.
 
