@@ -82,6 +82,7 @@ public class JsonStorage {
         paymentMethod.put("expiry", data.get("expiry"));
         paymentMethod.put("nickname", data.get("nickname"));
         paymentMethod.put("isDefault", data.get("isDefault"));
+        paymentMethod.put("networkTransactionId", data.get("networkTransactionId"));
         paymentMethod.put("createdAt", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         paymentMethod.put("updatedAt", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         

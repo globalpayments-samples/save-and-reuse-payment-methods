@@ -1,6 +1,7 @@
 package com.globalpayments.example;
 
 import com.global.api.ServicesContainer;
+import com.global.api.builders.AuthorizationBuilder;
 import com.global.api.entities.Address;
 import com.global.api.entities.StoredCredential;
 import com.global.api.entities.Transaction;
@@ -158,20 +159,24 @@ public class PaymentUtils {
     public static Map<String, Object> processPaymentWithSDK(String storedPaymentToken, BigDecimal amount, String currency, String networkTransactionId) throws Exception {
         try {
             // Credentials on File: MIT/Subsequent flags required by Visa/Mastercard/Amex
-            // SchemeId links this charge back to the original cardholder-initiated Verify
+            // The card brand reference from the original Verify links this charge back to it
             StoredCredential storedCredential = new StoredCredential()
                     .setType(StoredCredentialType.Unscheduled)
                     .setInitiator(StoredCredentialInitiator.Merchant)
-                    .setSequence(StoredCredentialSequence.Subsequent)
-                    .setSchemeId(networkTransactionId);
+                    .setSequence(StoredCredentialSequence.Subsequent);
 
             CreditCardData card = new CreditCardData();
             card.setToken(storedPaymentToken);
 
-            Transaction response = card.charge(amount)
+            AuthorizationBuilder builder = card.charge(amount)
                     .withCurrency(currency)
-                    .withStoredCredential(storedCredential)
-                    .execute();
+                    .withStoredCredential(storedCredential);
+
+            if (networkTransactionId != null && !networkTransactionId.isEmpty()) {
+                builder = builder.withCardBrandStorage(StoredCredentialInitiator.Merchant, networkTransactionId);
+            }
+
+            Transaction response = builder.execute();
 
             if ("SUCCESS".equals(response.getResponseCode()) &&
                 "CAPTURED".equals(response.getResponseMessage())) {
@@ -307,7 +312,7 @@ public class PaymentUtils {
                     cardDetails.expiryMonth,
                     cardDetails.expiryYear,
                     customerData,
-                    response.getSchemeId()
+                    response.getCardBrandTransactionId()
                 );
             } else {
                 throw new Exception("Multi-use token creation failed: " + (response.getResponseMessage() != null ? response.getResponseMessage() : "Unknown error"));
