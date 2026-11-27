@@ -70,8 +70,8 @@ public static class PaymentUtils
                 // Verify to convert single-use to multi-use token
                 // Using Verify (not a minimal charge) is the card brand-approved method for card-save flows.
                 // Flag as Cardholder Initiated (CIT), First in sequence — required by Visa/Mastercard/Amex
-                // for Credentials on File (COF) compliance. Store the returned SchemeId (network transaction ID)
-                // and pass it as SchemeId on every subsequent merchant-initiated charge.
+                // for Credentials on File (COF) compliance. Store the returned card brand reference
+                // and send it with every subsequent merchant-initiated charge.
                 var storedCredential = new StoredCredential
                 {
                     Type = StoredCredentialType.Unscheduled,
@@ -100,7 +100,7 @@ public static class PaymentUtils
                         ExpiryMonth = cardDetails.ExpiryMonth ?? "",
                         ExpiryYear = cardDetails.ExpiryYear ?? "",
                         CustomerData = customerData,
-                        NetworkTransactionId = response.SchemeId  // Store for COF on subsequent charges
+                        NetworkTransactionId = response.CardBrandTransactionId  // Store for COF on subsequent charges
                     };
                 }
                 else

@@ -559,19 +559,24 @@ public class Program
             try
             {
                 // Credentials on File: MIT/Subsequent flags required by Visa/Mastercard/Amex
-                // SchemeId links this charge back to the original cardholder-initiated Verify
+                // The card brand reference from the original Verify links this charge back to it
                 var storedCredential = new StoredCredential
                 {
                     Type = StoredCredentialType.Unscheduled,
                     Initiator = StoredCredentialInitiator.Merchant,
-                    Sequence = StoredCredentialSequence.Subsequent,
-                    SchemeId = paymentMethod.NetworkTransactionId
+                    Sequence = StoredCredentialSequence.Subsequent
                 };
                 var card = new CreditCardData { Token = paymentMethod.StoredPaymentToken };
-                var response = card.Charge(amount)
+                var builder = card.Charge(amount)
                     .WithCurrency("USD")
-                    .WithStoredCredential(storedCredential)
-                    .Execute();
+                    .WithStoredCredential(storedCredential);
+
+                if (!string.IsNullOrEmpty(paymentMethod.NetworkTransactionId))
+                {
+                    builder = builder.WithCardBrandStorage(StoredCredentialInitiator.Merchant, paymentMethod.NetworkTransactionId);
+                }
+
+                var response = builder.Execute();
 
                 return new ChargeResponseData
                 {
