@@ -91,6 +91,7 @@ public static class JsonStorage
             Nickname = data.Nickname,
             IsDefault = data.IsDefault,
             CustomerData = data.CustomerData,
+            NetworkTransactionId = data.NetworkTransactionId,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
