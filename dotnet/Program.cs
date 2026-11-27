@@ -448,7 +448,14 @@ public class Program
                 catch (Exception ex)
                 {
                     Console.Error.WriteLine($"Multi-use token creation error: {ex.Message}");
-                    mockModeEnabled = true;
+                    // A card that fails verification must not be saved, and live mode stays on
+                    return Results.Json(new ApiResponse<object>
+                    {
+                        Success = false,
+                        Message = $"Card could not be saved: {ex.Message}",
+                        ErrorCode = "VERIFICATION_FAILED",
+                        Timestamp = DateTime.UtcNow
+                    }, statusCode: 422);
                 }
             }
 
