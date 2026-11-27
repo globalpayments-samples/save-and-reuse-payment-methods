@@ -130,12 +130,12 @@ try {
                     $finalToken = $multiUseTokenData['multiUseToken'];
                 } catch (\Exception $e) {
                     error_log('Multi-use token creation error: ' . $e->getMessage());
-                    // Fall back to mock mode if token creation fails
-                    $mockMode = true;
+                    // A card that fails verification must not be saved
+                    PaymentUtils::sendErrorResponse(422, 'Card could not be saved: ' . $e->getMessage(), 'VERIFICATION_FAILED');
                 }
             }
 
-            // Use mock data in mock mode or if token creation failed
+            // Use mock data in mock mode or when no credentials are set
             if ($mockMode || !$multiUseTokenData) {
                 $brand = PaymentUtils::determineCardBrandFromType($cardDetails['cardType'] ?? '');
                 $multiUseTokenData = [
