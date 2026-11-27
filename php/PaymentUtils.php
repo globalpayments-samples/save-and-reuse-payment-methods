@@ -131,7 +131,7 @@ class PaymentUtils
                     'expiryMonth' => $cardDetails['expiryMonth'] ?? '',
                     'expiryYear' => $cardDetails['expiryYear'] ?? '',
                     'customerData' => $customerData,
-                    'networkTransactionId' => $response->schemeId ?? null
+                    'networkTransactionId' => $response->cardBrandTransactionId ?? null
                 ];
             } else {
                 throw new \Exception('Multi-use token creation failed: ' . ($response->responseMessage ?? 'Unknown error'));
@@ -180,26 +180,30 @@ class PaymentUtils
 
     /**
      * Process payment using Global Payments SDK (GP API)
-     * $networkTransactionId should be the SchemeId from the original Verify (COF compliance)
+     * $networkTransactionId should be the card brand reference from the original Verify (COF compliance)
      */
     public static function processPaymentWithSDK(string $storedPaymentToken, float $amount, string $currency, ?string $networkTransactionId = null): array
     {
         try {
             // Credentials on File: MIT/Subsequent flags required by Visa/Mastercard/Amex
-            // SchemeId links this charge back to the original cardholder-initiated Verify
+            // The card brand reference from the original Verify links this charge back to it
             $storedCredential = new StoredCredential();
             $storedCredential->type = StoredCredentialType::UNSCHEDULED;
             $storedCredential->initiator = StoredCredentialInitiator::MERCHANT;
             $storedCredential->sequence = StoredCredentialSequence::SUBSEQUENT;
-            $storedCredential->schemeId = $networkTransactionId;
 
             $card = new CreditCardData();
             $card->token = $storedPaymentToken;
 
-            $response = $card->charge($amount)
+            $builder = $card->charge($amount)
                 ->withCurrency($currency)
-                ->withStoredCredential($storedCredential)
-                ->execute();
+                ->withStoredCredential($storedCredential);
+
+            if (!empty($networkTransactionId)) {
+                $builder = $builder->withCardBrandStorage(StoredCredentialInitiator::MERCHANT, $networkTransactionId);
+            }
+
+            $response = $builder->execute();
 
             // Validate GP API response
             if ($response->responseCode === 'SUCCESS' &&
