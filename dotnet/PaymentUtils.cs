@@ -1,4 +1,5 @@
 using GlobalPayments.Api.Entities;
+using GlobalPayments.Api.Entities.Enums;
 using GlobalPayments.Api.PaymentMethods;
 using System.Text.RegularExpressions;
 
@@ -39,6 +40,26 @@ public static class PaymentUtils
             "jcb" => "JCB",
             _ => "Unknown"
         };
+    }
+
+    /// <summary>
+    /// Switch a verified single use token to multi use with the SDK's UpdateToken()
+    /// </summary>
+    private static string MakeTokenMultiUse(CreditCardData card, CardDetails cardDetails)
+    {
+        // GP API wants the card expiry on a token update
+        if (int.TryParse(cardDetails.ExpiryMonth, out var expMonth)) card.ExpMonth = expMonth;
+        if (int.TryParse(cardDetails.ExpiryYear, out var expYear)) card.ExpYear = expYear < 100 ? 2000 + expYear : expYear;
+
+        var update = card.UpdateToken()
+            .WithPaymentMethodUsageMode(PaymentMethodUsageMode.Multiple)
+            .Execute();
+
+        if (update.TokenUsageMode != PaymentMethodUsageMode.Multiple)
+        {
+            throw new Exception("Multi-use token creation failed: GP API did not make the token multi use");
+        }
+        return card.Token;
     }
 
     /// <summary>
@@ -90,7 +111,13 @@ public static class PaymentUtils
                     response.ResponseMessage == "VERIFIED")
                 {
                     var brand = DetermineCardBrandFromType(cardDetails.CardType ?? "");
-                    var multiUseToken = response.Token ?? paymentToken;
+                    // The .NET SDK sends no storage_mode on a Verify of a token, so GP API returns no
+                    // new token and the one from the form stays single use. Switch it to multi use.
+                    var multiUseToken = response.Token;
+                    if (string.IsNullOrEmpty(multiUseToken))
+                    {
+                        multiUseToken = MakeTokenMultiUse(card, cardDetails);
+                    }
 
                     return new MultiUseTokenResult
                     {
