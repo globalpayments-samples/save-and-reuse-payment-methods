@@ -383,6 +383,8 @@ For production deployment, enhance with:
 mvn clean package cargo:run
 ```
 
+The server runs inside Maven, and java/.mvn/jvm.config opens two JDK packages to it. The SDK needs them to send the PATCH that makes a saved card token multi use.
+
 ### Production Build
 ```bash
 mvn clean package

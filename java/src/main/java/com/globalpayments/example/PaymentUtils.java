@@ -7,6 +7,7 @@ import com.global.api.entities.StoredCredential;
 import com.global.api.entities.Transaction;
 import com.global.api.entities.enums.Channel;
 import com.global.api.entities.enums.Environment;
+import com.global.api.entities.enums.PaymentMethodUsageMode;
 import com.global.api.entities.enums.StoredCredentialInitiator;
 import com.global.api.entities.enums.StoredCredentialSequence;
 import com.global.api.entities.enums.StoredCredentialType;
@@ -264,6 +265,20 @@ public class PaymentUtils {
         }
     }
 
+    /**
+     * Switch a verified single use token to multi use with the SDK's updateToken().
+     */
+    private static String makeTokenMultiUse(CreditCardData card) throws Exception {
+        Transaction update = card.updateToken()
+                .withPaymentMethodUsageMode(PaymentMethodUsageMode.MULTIPLE)
+                .execute();
+
+        if (update.getTokenUsageMode() != PaymentMethodUsageMode.MULTIPLE) {
+            throw new Exception("Multi-use token creation failed: GP API did not make the token multi use");
+        }
+        return card.getToken();
+    }
+
     public static MultiUseTokenResult createMultiUseTokenWithCustomer(String paymentToken, CustomerData customerData, CardDetails cardDetails) throws Exception {
         try {
             CreditCardData card = new CreditCardData();
@@ -293,7 +308,12 @@ public class PaymentUtils {
             if ("SUCCESS".equals(response.getResponseCode()) &&
                 "VERIFIED".equals(response.getResponseMessage())) {
                 String brand = determineCardBrandFromType(cardDetails.cardType);
-                String finalToken = response.getToken() != null ? response.getToken() : paymentToken;
+                // The Java SDK sends no storage_mode on a Verify of a token, so GP API returns no
+                // new token and the one from the form stays single use. Switch it to multi use.
+                String finalToken = response.getToken();
+                if (finalToken == null || finalToken.isEmpty()) {
+                    finalToken = makeTokenMultiUse(card);
+                }
 
                 System.out.println("✅ MULTI-USE TOKEN CREATION SUCCESS:");
                 System.out.println("   ⏰ Timestamp: " + LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
